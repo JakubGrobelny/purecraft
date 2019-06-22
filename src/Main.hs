@@ -11,6 +11,7 @@ import Control.Monad (unless)
 import Config
 import GameState
 
+
 main :: IO ()
 main = do
     cfg <- readFile "res/config.json"
@@ -31,6 +32,7 @@ customWindow cfg = defaultWindow
 gameLoop :: Renderer -> GameState -> IO ()
 gameLoop renderer state = do
     events <- pollEvents
-    let newState = processEvents state events
-    drawState renderer newState
-    unless (isExit newState) (gameLoop renderer newState)
+    let (newState, effects) = processEvents state events
+    finalState <- gamePerformIO effects newState
+    drawState renderer finalState
+    unless (stateIsExit newState) (gameLoop renderer finalState)

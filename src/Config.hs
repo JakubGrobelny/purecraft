@@ -6,8 +6,9 @@ import Data.Aeson
 import Foreign.C.Types
 import Linear (V2(..))
 
+
 data Configuration = Configuration
-    { scrSize :: V2 CInt
+    { scrSize      :: V2 CInt
     , captureMouse :: Bool }
 
 instance FromJSON Configuration where
