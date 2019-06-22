@@ -3,18 +3,26 @@
 module GameState where
 
 import SDL
+import qualified System.Random as R
 
 
 data Effect = Effect
 
 data GameState = GameState
-    { stateIsExit  :: Bool }
+    { stateIsExit  :: Bool
+    , randoms      :: [Integer] }
 
-freshState :: GameState
-freshState = GameState {stateIsExit = False}
+freshState :: Int -> GameState
+freshState seed = GameState { stateIsExit = False
+                            , randoms     = R.randoms (R.mkStdGen seed)}
 
-processEvents :: GameState -> [Event] -> (GameState, [Effect])
-processEvents = undefined
+preprocessEvents :: [Event] -> [EventPayload]
+preprocessEvents = map eventPayload
+
+processEvents :: [EventPayload] -> GameState -> (GameState, [Effect])
+processEvents (QuitEvent : _) st = (st {stateIsExit = True}, [])
+processEvents (_:es) st = processEvents es st
+processEvents [] st = (st, [])
 
 gamePerformIO :: [Effect] -> GameState -> IO GameState
 gamePerformIO [] state = return state
@@ -27,6 +35,6 @@ performEffect = undefined
 
 drawState :: Renderer -> GameState -> IO ()
 drawState renderer _ = do
-    rendererDrawColor renderer $= V4 0 255 255 255
+    rendererDrawColor renderer $= V4 255 255 255 255
     clear renderer
     present renderer
