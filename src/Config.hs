@@ -8,7 +8,8 @@ import Linear (V2(..))
 
 data Configuration = Configuration
     { scrSize      :: V2 Integer
-    , captureMouse :: Bool }
+    , captureMouse :: Bool 
+    }
 
 instance FromJSON Configuration where
     parseJSON = withObject "config" $ \o -> do

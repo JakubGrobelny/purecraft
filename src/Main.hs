@@ -24,19 +24,22 @@ main = do
             window <- createWindow "Haskelike" $ customWindow cfg
             renderer <- createRenderer window (-1) defaultRenderer
             seed <- randomIO
-            gameLoop renderer $ freshState seed
+            let state = freshState seed 
+            gameLoop renderer state
+            destroyWindow window
+            quit
 
 customWindow :: Configuration -> WindowConfig
 customWindow cfg = defaultWindow 
-    { windowInitialSize  =  CInt . fromInteger <$> scrSize cfg
+    { windowInitialSize  = CInt . fromInteger <$> scrSize cfg
     , windowInputGrabbed = captureMouse cfg
-    , windowPosition     = Centered }
+    , windowPosition     = Centered 
+    }
 
 gameLoop :: Renderer -> GameState -> IO ()
 gameLoop renderer state = do
-    -- TODO: limit FPS to 60
     events <- pollEvents
-    let (newState, effects) = processEvents (preprocessEvents events) state
+    let (newState, effects) = updateState events state
     finalState <- gamePerformIO effects newState
     drawState renderer finalState
     unless (stateIsExit newState) (gameLoop renderer finalState)
