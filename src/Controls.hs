@@ -14,25 +14,37 @@ data KeyBindings = KeyBindings
     , bindingDown  :: Keycode
     , bindingLeft  :: Keycode
     , bindingRight :: Keycode
+    , bindingPause :: Keycode
     } deriving (Generic, Show)
 
+defaultKeyBindings :: KeyBindings
+defaultKeyBindings = KeyBindings
+    { bindingUp    = KeycodeW
+    , bindingLeft  = KeycodeA
+    , bindingRight = KeycodeD
+    , bindingDown  = KeycodeS
+    , bindingPause = KeycodeEscape
+    }
+
 data Controller = Controller
-    { aimPosX    :: Int32
-    , aimPosY    :: Int32
-    , movesLeft  :: Bool
-    , movesRight :: Bool
-    , movesUp    :: Bool
-    , movesDown  :: Bool
+    { aimPosX     :: Int32
+    , aimPosY     :: Int32
+    , movesLeft   :: Bool
+    , movesRight  :: Bool
+    , movesUp     :: Bool
+    , movesDown   :: Bool
+    , pauseActive :: Bool 
     }
 
 newController :: Controller
 newController = Controller
-    { aimPosX    = 0
-    , aimPosY    = 0
-    , movesLeft  = False
-    , movesRight = False
-    , movesUp    = False
-    , movesDown  = False
+    { aimPosX     = 0
+    , aimPosY     = 0
+    , movesLeft   = False
+    , movesRight  = False
+    , movesUp     = False
+    , movesDown   = False
+    , pauseActive = False
     }
 
 updateControls :: [Event] -> KeyBindings -> Controller -> (Controller, [Event])
@@ -50,6 +62,7 @@ updateControls (ev : events) keys c =
             | k == bindingDown  keys = c { movesDown  = m == Pressed }
             | k == bindingLeft  keys = c { movesLeft  = m == Pressed }
             | k == bindingRight keys = c { movesRight = m == Pressed }
+            | k == bindingPause keys = c { pauseActive = m == Pressed }
             | otherwise = c
 
 movementToVector :: Controller -> V2 CInt
@@ -64,11 +77,3 @@ movementToVector c = V2 (xMov c) (yMov c)
         yMov :: Controller -> CInt
         yMov Controller{movesUp = u, movesDown = d} =
             intOfBool d - intOfBool u
-
-defaultKeyBindings :: KeyBindings
-defaultKeyBindings = KeyBindings
-    { bindingUp    = KeycodeW
-    , bindingLeft  = KeycodeA
-    , bindingRight = KeycodeD
-    , bindingDown  = KeycodeS
-    }

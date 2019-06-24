@@ -7,6 +7,7 @@
         "bindingUp":    { "unwrapKeycode": 119 },
         "bindingDown":  { "unwrapKeycode": 115 },
         "bindingLeft":  { "unwrapKeycode": 97 },
-        "bindingRight": { "unwrapKeycode": 100 }
+        "bindingRight": { "unwrapKeycode": 100 },
+        "bindingPause": { "unwrapKeycode": 27 }
     }
 }

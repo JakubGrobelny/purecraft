@@ -48,5 +48,7 @@ gameLoop renderer state = do
     drawState renderer state'
     t1 <- ticks
     let deltaT = t1 - t0
-    when (deltaT <= 16) (threadDelay . fromIntegral . (* 1000) $ 16 - deltaT )
-    unless (isExit state') (gameLoop renderer state')
+    when (deltaT <= 16) $ 
+        threadDelay . fromIntegral . (* 1000) $ 16 - deltaT
+    unless (isExit state') $ 
+        gameLoop renderer state'

@@ -2,7 +2,8 @@
 
 module GameState where
 
-import SDL (V2(..), Event(..))
+import Linear (V2(..))
+import qualified SDL as SDL
 import qualified System.Random as R
 import Foreign.C.Types
 import qualified Data.Map.Strict as Map
@@ -33,13 +34,24 @@ freshState seed cfg = GameState
     , gameConfig     = cfg
     }
 
-updateState :: [Event] -> State GameState (IO ())
+wasWindowClosed :: [SDL.Event] -> Bool
+wasWindowClosed = any (isWindowClose . SDL.eventPayload)
+    where
+        isWindowClose :: SDL.EventPayload -> Bool
+        isWindowClose (SDL.WindowClosedEvent _ ) = True
+        isWindowClose _ = False
+
+updateState :: [SDL.Event] -> State GameState (IO ())
 updateState events = do
     state <- get
     let keys         = keyBindings $ gameConfig state
         (c, events') = updateControls events keys $ gameController state
         player       = gamePlayer state
-    put (state {gameController = c, gamePlayer = movePlayer player c})
+    put $ state 
+        { gameController = c
+        , gamePlayer = movePlayer player c
+        , isExit = wasWindowClosed events' || pauseActive c
+        }    
     return $ return ()
 
 movePlayer :: Player -> Controller -> Player
