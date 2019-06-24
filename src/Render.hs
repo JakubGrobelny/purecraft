@@ -4,6 +4,7 @@ import SDL
 
 import GameState
 
+
 drawPlayer :: Renderer -> Player -> IO ()
 drawPlayer renderer (Player (V2 x y)) = do
     rendererDrawColor renderer $= V4 255 0 0 255

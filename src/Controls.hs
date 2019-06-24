@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveGeneric, MultiWayIf #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Controls where
 
 import qualified Data.Map.Strict as Map
-import SDL
-import GHC.Generics
-import Data.Int
-import Foreign.C.Types
+import           SDL
+import           GHC.Generics
+import           Data.Int
+import           Foreign.C.Types
 
 
 data KeyBindings = KeyBindings
