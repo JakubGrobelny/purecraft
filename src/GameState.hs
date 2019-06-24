@@ -43,4 +43,4 @@ updateState events = do
     return $ return ()
 
 movePlayer :: Player -> Controller -> Player
-movePlayer (Player vec) = Player . (vec +) . movementToVector
+movePlayer (Player vec) = Player . (vec +) . (* 20) <$> movementToVector
