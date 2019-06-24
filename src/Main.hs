@@ -6,7 +6,8 @@ import SDL
 import Linear (V4(..))
 import Data.Aeson (decode)
 import Data.String
-import Control.Monad (unless)
+import Control.Monad (unless, when)
+import Control.Monad.State.Lazy
 import Foreign.C.Types
 import System.Random
 
@@ -24,7 +25,7 @@ main = do
             window <- createWindow "Haskelike" $ customWindow cfg
             renderer <- createRenderer window (-1) defaultRenderer
             seed <- randomIO
-            let state = freshState seed 
+            let state = freshState seed cfg
             gameLoop renderer state
             destroyWindow window
             quit
@@ -39,7 +40,6 @@ customWindow cfg = defaultWindow
 gameLoop :: Renderer -> GameState -> IO ()
 gameLoop renderer state = do
     events <- pollEvents
-    let (newState, effects) = updateState events state
-    finalState <- gamePerformIO effects newState
-    drawState renderer finalState
-    unless (stateIsExit newState) (gameLoop renderer finalState)
+    let state' = updateState events state
+    drawState renderer state'
+    unless (isExit state') (gameLoop renderer state')
