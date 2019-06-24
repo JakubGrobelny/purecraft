@@ -1,0 +1,30 @@
+name:                haskelike
+version:             0.0.1.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/JakubGrobelny/haskelike
+license:             GPL-3
+license-file:        LICENSE
+author:              Jakub Grobelny
+maintainer:          jgrobelny1@gmail.com
+copyright:           2019 Jakub Grobelny
+category:            Game
+build-type:          Simple
+cabal-version:       >=1.10
+-- extra-source-files:  README.md
+
+executable haskelike
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  other-modules:       Config,
+                       GameState,
+                       Controls,
+                       Render
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5,
+                       sdl2,
+                       linear,
+                       aeson,
+                       random,
+                       containers,
+                       mtl
