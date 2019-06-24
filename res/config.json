@@ -4,9 +4,9 @@
     "captureMouse": false,
     "keyBindings": 
     {
-        "bindingUp":    { "unwrapKeycode": 1073741906 },
-        "bindingDown":  { "unwrapKeycode": 1073741905 },
-        "bindingLeft":  { "unwrapKeycode": 1073741904 },
-        "bindingRight": { "unwrapKeycode": 1073741903 }
+        "bindingUp":    { "unwrapKeycode": 119 },
+        "bindingDown":  { "unwrapKeycode": 115 },
+        "bindingLeft":  { "unwrapKeycode": 97 },
+        "bindingRight": { "unwrapKeycode": 100 }
     }
 }

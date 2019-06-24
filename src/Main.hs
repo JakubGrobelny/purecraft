@@ -13,6 +13,7 @@ import System.Random
 
 import Config
 import GameState
+import Render
 
 
 main :: IO ()
@@ -40,6 +41,7 @@ customWindow cfg = defaultWindow
 gameLoop :: Renderer -> GameState -> IO ()
 gameLoop renderer state = do
     events <- pollEvents
-    let state' = updateState events state
+    let (effect, state') = runState (updateState events) state
+    effect
     drawState renderer state'
     unless (isExit state') (gameLoop renderer state')
