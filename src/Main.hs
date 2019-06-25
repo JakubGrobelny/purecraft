@@ -24,7 +24,7 @@ main = do
         Nothing -> putStrLn "Failed to load configuration file!"
         Just cfg -> do
             initializeAll
-            window <- createWindow "Haskelike" $ customWindow cfg
+            window <- createWindow "PureCraft" $ customWindow cfg
             renderer <- createRenderer window (-1) $ defaultRenderer
             seed <- randomIO
             let state = freshState seed cfg

@@ -1,8 +1,8 @@
-name:                haskelike
+name:                purecraft
 version:             0.0.1.0
 -- synopsis:
 -- description:
-homepage:            https://github.com/JakubGrobelny/haskelike
+homepage:            https://github.com/JakubGrobelny/purecraft
 license:             GPL-3
 license-file:        LICENSE
 author:              Jakub Grobelny
@@ -13,7 +13,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 -- extra-source-files:  README.md
 
-executable haskelike
+executable purecraft
   hs-source-dirs:      src
   main-is:             Main.hs
   other-modules:       Config,
