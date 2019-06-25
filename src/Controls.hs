@@ -34,7 +34,7 @@ data Controller = Controller
     , movesUp     :: Bool
     , movesDown   :: Bool
     , pauseActive :: Bool 
-    }
+    } deriving Show
 
 newController :: Controller
 newController = Controller

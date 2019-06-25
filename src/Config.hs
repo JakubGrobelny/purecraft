@@ -13,7 +13,7 @@ data Configuration = Configuration
     { scrSize      :: V2 Integer
     , captureMouse :: Bool
     , keyBindings  :: KeyBindings
-    }
+    } deriving Show
 
 instance FromJSON Configuration where
     parseJSON = withObject "config" $ \o -> do

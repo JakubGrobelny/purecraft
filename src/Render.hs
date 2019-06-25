@@ -3,6 +3,7 @@ module Render where
 import SDL
 
 import GameState
+import Player
 
 
 drawPlayer :: Renderer -> Player -> IO ()

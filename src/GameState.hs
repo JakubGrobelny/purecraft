@@ -9,9 +9,8 @@ import           Control.Monad.State.Lazy
 
 import Controls
 import Config
+import Player
 
-
-data Player = Player { playerPos :: V2 CInt }
 
 data GameState = GameState
     { isExit         :: Bool
@@ -19,7 +18,7 @@ data GameState = GameState
     , gamePlayer     :: Player
     , gameController :: Controller
     , gameConfig     :: Configuration
-    }
+    } deriving Show
 
 freshState :: Int -> Configuration ->  GameState
 freshState seed cfg = GameState 
@@ -49,6 +48,3 @@ updateState events = do
         , isExit = wasWindowClosed events' || pauseActive c
         }
     return $ return ()
-        
-movePlayer :: Player -> Controller -> Player
-movePlayer (Player vec) = Player . (vec +) . (* 20) <$> movementToVector
