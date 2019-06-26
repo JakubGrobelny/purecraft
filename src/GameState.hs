@@ -16,19 +16,21 @@ import World
 
 data GameState = GameState
     { isExit         :: Bool
-    , randoms        :: [Int64]
+    , randoms        :: [Int]
     , gamePlayer     :: Player
     , gameController :: Controller
     , gameConfig     :: Configuration
-    } deriving Show
+    , gameWorld      :: World
+    }
 
-freshState :: Int -> Configuration ->  GameState
+freshState :: Seed -> Configuration ->  GameState
 freshState seed cfg = GameState 
     { isExit         = False
     , randoms        = R.randoms (R.mkStdGen seed)
-    , gamePlayer     = Player $ V2 0 0
+    , gamePlayer     = newPlayer
     , gameController = newController
     , gameConfig     = cfg
+    , gameWorld      = newWorld seed
     }
 
 wasWindowClosed :: [SDL.Event] -> Bool

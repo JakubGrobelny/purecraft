@@ -7,7 +7,7 @@ import           Data.Int
 import Entity
 
 
-type Seed = Int64
+type Seed = Int
 
 chunkHeight :: Int64
 chunkHeight = 256
@@ -21,8 +21,14 @@ data Chunk = Chunk
     }
 
 data World = World
-    { worldSeed   :: Int64
+    { worldSeed   :: Seed
     , worldChunks :: Map.Map Int64 Chunk
+    }
+
+newWorld :: Seed -> World
+newWorld seed = World
+    { worldSeed   = seed
+    , worldChunks = Map.empty
     }
 
 coordsToChunk :: (Int64, Int64) -> State World Chunk
@@ -37,6 +43,10 @@ coordsToChunk (x, y) = do
             return chunk
         Just chunk -> return chunk
 
+-- TODO: add world generation
 generateChunk :: Seed -> Int64 -> Chunk
-generateChunk = undefined
-
+generateChunk _ _ = Chunk
+    { chunkBlocks = Map.fromList
+        [((x,y), Air) | x <- [0..chunkWidth-1], y <- [0..chunkHeight-1]]
+    , chunkAltered = False
+    }

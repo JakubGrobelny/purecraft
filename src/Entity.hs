@@ -1,8 +1,9 @@
 module Entity where
 
 
-data Block = Block
+data Block
+    = Air
 
 data Entity
     = Mob
-    | Static
+    | Static Block
