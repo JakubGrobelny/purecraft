@@ -15,4 +15,3 @@ newPlayer = Player $ V2 0 0
 
 movePlayer :: Player -> Controller -> Player
 movePlayer (Player vec) = Player . (vec +) . (* 20) <$> movementToVector
-

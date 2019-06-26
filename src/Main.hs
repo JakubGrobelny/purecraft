@@ -25,7 +25,7 @@ main = do
         Just cfg -> do
             initializeAll
             window <- createWindow "PureCraft" $ customWindow cfg
-            renderer <- createRenderer window (-1) $ defaultRenderer
+            renderer <- createGameRenderer window
             seed <- randomIO
             let state = freshState seed cfg
             gameLoop renderer state
@@ -39,16 +39,16 @@ customWindow cfg = defaultWindow
     , windowPosition     = Centered 
     }
 
-gameLoop :: Renderer -> GameState -> IO ()
+gameLoop :: GameRenderer -> GameState -> IO ()
 gameLoop renderer state = do
     t0 <- ticks
     events <- pollEvents
     let (effect, state') = runState (updateState events) state
-    effect
-    drawState renderer state'
+    state'' <- effect state'
+    drawState renderer state''
     t1 <- ticks
     let deltaT = t1 - t0
     when (deltaT <= 16) $ 
         threadDelay . fromIntegral . (* 1000) $ 16 - deltaT
-    unless (isExit state') $ 
-        gameLoop renderer state'
+    unless (isExit state'') $ 
+        gameLoop renderer state''

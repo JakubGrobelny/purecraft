@@ -47,6 +47,7 @@ coordsToChunk (x, y) = do
 generateChunk :: Seed -> Int64 -> Chunk
 generateChunk _ _ = Chunk
     { chunkBlocks = Map.fromList
-        [((x,y), Air) | x <- [0..chunkWidth-1], y <- [0..chunkHeight-1]]
+        [((x,y), if y <= 128 then Stone else Air ) 
+            | x <- [0..chunkWidth-1], y <- [0..chunkHeight-1]]
     , chunkAltered = False
     }
