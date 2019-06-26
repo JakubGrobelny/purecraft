@@ -3,6 +3,7 @@ module GameState where
 import qualified SDL as SDL
 import qualified System.Random as R
 import qualified Data.Map.Strict as Map
+import           Data.Int
 import           Linear (V2(..))
 import           Foreign.C.Types
 import           Control.Monad.State.Lazy
@@ -10,11 +11,12 @@ import           Control.Monad.State.Lazy
 import Controls
 import Config
 import Player
+import World
 
 
 data GameState = GameState
     { isExit         :: Bool
-    , randoms        :: [Integer]
+    , randoms        :: [Int64]
     , gamePlayer     :: Player
     , gameController :: Controller
     , gameConfig     :: Configuration

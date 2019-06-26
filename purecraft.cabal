@@ -21,7 +21,9 @@ executable purecraft
                        Controls,
                        Render,
                        Player,
-                       PhysicalBody
+                       Entity,
+                       HitBox,
+                       World
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5,
                        sdl2,
