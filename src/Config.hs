@@ -10,7 +10,7 @@ import Controls
 
 
 data Configuration = Configuration
-    { scrSize      :: V2 Integer
+    { scrSize      :: V2 Int
     , captureMouse :: Bool
     , keyBindings  :: KeyBindings
     } deriving Show

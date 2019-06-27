@@ -21,12 +21,12 @@ main :: IO ()
 main = do
     cfg <- readFile "res/config.json"
     case decode $ fromString cfg of
-        Nothing -> putStrLn "Failed to load configuration file!"
+        Nothing  -> putStrLn "Failed to load configuration file!"
         Just cfg -> do
             initializeAll
-            window <- createWindow "PureCraft" $ customWindow cfg
+            window   <- createWindow "PureCraft" $ customWindow cfg
             renderer <- createGameRenderer window
-            seed <- randomIO
+            seed     <- randomIO
             let state = freshState seed cfg
             gameLoop renderer state
             destroyWindow window
@@ -34,7 +34,7 @@ main = do
 
 customWindow :: Configuration -> WindowConfig
 customWindow cfg = defaultWindow 
-    { windowInitialSize  = CInt . fromInteger <$> scrSize cfg
+    { windowInitialSize  = CInt . fromIntegral <$> scrSize cfg
     , windowInputGrabbed = captureMouse cfg
     , windowPosition     = Centered 
     }

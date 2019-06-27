@@ -27,18 +27,20 @@ data GameState = GameState
 data Camera = Camera
     { cameraPos  :: V2 CInt
     , cameraZoom :: Double
+    , cameraRes  :: V2 CInt
     }
 
-cameraFromPlayer :: Player -> Camera
-cameraFromPlayer p = Camera (playerPos p) 1.0
-
+cameraFromPlayer :: Player -> V2 CInt -> Camera
+cameraFromPlayer (Player p) scr = Camera pos 1.0 scr
+    where
+        pos = p - ((`div` 2) <$> scr)
 
 freshState :: Seed -> Configuration ->  GameState
 freshState seed cfg = GameState 
     { isExit         = False
     , randoms        = R.randoms (R.mkStdGen seed)
     , gamePlayer     = newPlayer
-    , gameCamera     = cameraFromPlayer newPlayer
+    , gameCamera     = cameraFromPlayer newPlayer $ fromIntegral <$> scrSize cfg
     , gameController = newController
     , gameConfig     = cfg
     , gameWorld      = newWorld seed
@@ -58,13 +60,24 @@ updateState events = do
         (c, events') = updateControls events keys $ gameController state
         player       = movePlayer (gamePlayer state) c
         camera       = gameCamera state
-    put $ state 
+        world        = gameWorld state
+        (_, world')  = runState (ensureGenerated (playerPos player)) world
+    put $ state
         { gameController = c
         , gamePlayer = player
         , gameCamera = moveCamera camera player
+        , gameWorld  = world'
         , isExit = wasWindowClosed events' || pauseActive c
         }
-    return return
-
+    return $ \s -> do
+        let V2 x y = playerPos player
+        putStrLn $ "x: " ++ show (x `div` 32) ++ 
+                  " y: " ++ show (y `div` 32) ++ 
+                  " chunk: " ++ show (coordsToChunkId (playerPos player))
+        return s
+        
 moveCamera :: Camera -> Player -> Camera
-moveCamera _ = cameraFromPlayer
+moveCamera cam = flip cameraFromPlayer (cameraRes cam)
+
+normalizedCameraPos :: Camera -> V2 CInt
+normalizedCameraPos cam = cameraPos cam + ((`div` 2) <$> cameraRes cam)

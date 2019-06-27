@@ -2,12 +2,13 @@ module Player where
 
 import Linear (V2(..))
 import Foreign.C.Types
+import Data.Int 
 
 import Controls
 
 
 data Player = Player 
-    { playerPos :: V2 CInt 
+    { playerPos :: V2 CInt
     } deriving Show
 
 newPlayer :: Player
