@@ -18,8 +18,9 @@ data GameRenderer = GameRenderer
     }
 
 createGameRenderer :: Window -> IO GameRenderer
-createGameRenderer window = 
-    GameRenderer <$> createRenderer window (-1) defaultRenderer
+createGameRenderer window = do
+    renderer <- createRenderer window (-1) defaultRenderer
+    return $ GameRenderer renderer
 
 drawPlayer :: GameRenderer -> Camera -> Player -> IO ()
 drawPlayer r cam (Player vec) = do
@@ -41,8 +42,8 @@ drawBlock r cam block pos chunkId = do
         offsetBlock (V2 x y) id = V2 (id * chunkWidth * blockSize + x) y
 
 blockColor :: Block -> V4 Word8
-blockColor Air = V4 155 175 255 255
 blockColor Stone = V4 0 0 0 255
+blockColor Air   = V4 155 175 255 255
 
 drawWorld :: GameRenderer -> Camera -> World -> IO ()
 drawWorld r cam world = do
@@ -63,11 +64,11 @@ drawChunk r cam world id = case lookupChunk world id of
         draw chunkId ((x, y), b) = drawBlock r cam b (V2 x y) chunkId
         
 drawState :: GameRenderer -> GameState -> IO ()
-drawState renderer state = do
-    let r   = sdlRenderer renderer
-        cam = gameCamera state
-    rendererDrawColor r $= V4 0 0 0 255
-    clear r
-    drawWorld renderer cam $ gameWorld state
-    drawPlayer renderer cam $ gamePlayer state
-    present r
+drawState r state = do
+    let renderer = sdlRenderer r
+        cam      = gameCamera state
+    rendererDrawColor renderer $= V4 0 0 0 255
+    clear renderer
+    drawWorld r cam $ gameWorld state
+    drawPlayer r cam $ gamePlayer state
+    present renderer

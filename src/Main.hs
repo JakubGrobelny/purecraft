@@ -49,6 +49,6 @@ gameLoop renderer state = do
     t1 <- ticks
     let deltaT = t1 - t0
     when (deltaT <= 16) $ 
-        threadDelay . fromIntegral . (* 1000) $ 16 - deltaT
+        threadDelay . fromIntegral $ (16 - deltaT) * 1000
     unless (isExit state'') $ 
         gameLoop renderer state''
