@@ -3,8 +3,12 @@ module Block where
 import Foreign.C.Types
 import Linear(V2(..))
 
-import Hitbox
 
+data BlockType
+    = Air
+    | Stone
+
+data Block = Block (V2 CInt) BlockType
 
 chunkHeight :: CInt
 chunkHeight = 256
@@ -18,12 +22,6 @@ blockSize = 32
 blockSizeV :: V2 CInt
 blockSizeV = V2 blockSize blockSize
 
-data Block
-    = Air
-    | Stone
-
-blockHitbox :: (CInt, CInt) -> CInt -> Hitbox
-blockHitbox (x, y) chunkId = HB [BB x' y blockSize blockSize]
-    where
-        x' = chunkId * chunkWidth + x
-
+isSolidBlock :: BlockType -> Bool
+isSolidBlock Air = False
+isSolidBlock _ = True

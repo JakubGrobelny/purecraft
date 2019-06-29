@@ -4,6 +4,8 @@ import SDL
 import Linear(V2(..))
 import Foreign.C.Types
 
+import Block
+
 
 data BoundingBox = BB
     { bbX :: CInt
@@ -30,6 +32,11 @@ moveBB (V2 deltaX deltaY) bb = bb
 
 hitboxesCollide :: Hitbox -> Hitbox -> Bool
 hitboxesCollide (HB hb0) (HB hb1) = or $ hb0 >>= \x -> map (bbsCollide x) hb1
+
+blockHitbox :: (CInt, CInt) -> CInt -> Hitbox
+blockHitbox (x, y) chunkId = HB [BB x' y blockSize blockSize]
+    where
+        x' = chunkId * chunkWidth + x
 
 bbsCollide :: BoundingBox -> BoundingBox -> Bool
 bbsCollide bb0 bb1 = not $ x1' < x2 || x1 > x2' || y1' < y2 || y1 > y2'

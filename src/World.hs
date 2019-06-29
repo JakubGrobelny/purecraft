@@ -13,7 +13,7 @@ import Block
 type Seed = Int
 
 data Chunk = Chunk 
-    { chunkBlocks  :: Map.Map (CInt, CInt) Block
+    { chunkBlocks  :: Map.Map (CInt, CInt) BlockType
     , chunkAltered :: Bool
     }
 

@@ -3,8 +3,8 @@ module Physics where
 import Linear(V2(..))
 import Foreign.C.Types
 
-
 import Hitbox
+import Block
 
 
 gravity :: Double

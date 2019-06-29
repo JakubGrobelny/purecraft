@@ -25,7 +25,8 @@ executable purecraft
                        Hitbox,
                        World,
                        Physics,
-                       Block
+                       Block,
+                       Movement
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5,
                        sdl2,

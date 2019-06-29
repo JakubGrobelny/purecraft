@@ -31,19 +31,15 @@ drawPlayer r cam p = do
     rendererDrawColor renderer $= V4 255 0 0 255
     fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 100 100)
 
-drawBlock :: GameRenderer -> Camera -> Block -> V2 CInt -> CInt -> IO ()
-drawBlock r cam block pos chunkId = do
+drawBlock :: GameRenderer -> Camera -> Block -> CInt -> IO ()
+drawBlock r cam (Block pos block) chunkId = do
     let color    = blockColor block
         camPos   = cameraPos cam
         renderer = sdlRenderer r
-        blockPos = offsetBlock (blockSizeV * pos) chunkId
     rendererDrawColor renderer $= color
-    fillRect renderer $ Just $ Rectangle (P $ blockPos - camPos) blockSizeV
-    where
-        offsetBlock :: V2 CInt -> CInt -> V2 CInt
-        offsetBlock (V2 x y) id = V2 (id * chunkWidth * blockSize + x) y
-
-blockColor :: Block -> V4 Word8
+    fillRect renderer $ Just $ Rectangle (P $ pos - camPos) blockSizeV
+    
+blockColor :: BlockType -> V4 Word8
 blockColor Stone = V4 0 0 0 255
 blockColor Air   = V4 155 175 255 255
 
@@ -62,9 +58,14 @@ drawChunk r cam world id = case lookupChunk world id of
         let renderer = sdlRenderer r
         mapM_ (draw id) $ Map.toList blocks
     where
-        draw :: CInt -> ((CInt, CInt), Block) -> IO ()
-        draw chunkId ((x, y), b) = drawBlock r cam b (V2 x y) chunkId
-        
+        draw :: CInt -> ((CInt, CInt), BlockType) -> IO ()
+        draw chunkId ((x, y), b) = 
+            drawBlock r cam (Block (offsetBlock pos chunkId) b) chunkId
+            where
+                pos = V2 x y * blockSizeV
+                offsetBlock :: V2 CInt -> CInt -> V2 CInt
+                offsetBlock (V2 x y) id = V2 (id * chunkWidth * blockSize + x) y
+
 drawState :: GameRenderer -> GameState -> IO ()
 drawState r state = do
     let renderer = sdlRenderer r
