@@ -56,12 +56,12 @@ pruneWorld :: CInt -> State World ()
 pruneWorld id = do
     world <- get
     let chunks = worldChunks world
-        pruned = Map.filterWithKey removable chunks
+        pruned = Map.filterWithKey needed chunks
     put $ world { worldChunks = pruned }
     return ()
     where
-        removable :: (CInt -> Chunk -> Bool)
-        removable chunkId chunk = dist < pruneDistance || altered
+        needed :: (CInt -> Chunk -> Bool)
+        needed chunkId chunk = dist < pruneDistance || altered
             where
                 dist = abs $ id - chunkId
                 altered = chunkAltered chunk
