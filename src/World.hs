@@ -47,7 +47,24 @@ ensureGenerated coords = do
     ensureGeneratedId $ id - 1
     ensureGeneratedId $ id + 1
     ensureGeneratedId id
+    pruneWorld id
+
+pruneDistance :: CInt
+pruneDistance = 8
+
+pruneWorld :: CInt -> State World ()
+pruneWorld id = do
+    world <- get
+    let chunks = worldChunks world
+        pruned = Map.filterWithKey removable chunks
+    put $ world { worldChunks = pruned }
     return ()
+    where
+        removable :: (CInt -> Chunk -> Bool)
+        removable chunkId chunk = dist < pruneDistance || altered
+            where
+                dist = abs $ id - chunkId
+                altered = chunkAltered chunk
     
 ensureGeneratedId :: CInt -> State World ()
 ensureGeneratedId id = do
