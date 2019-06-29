@@ -5,14 +5,26 @@ import Foreign.C.Types
 import Data.Int 
 
 import Controls
+import Physics
+import Entity
+import Hitbox
 
 
-data Player = Player 
-    { playerPos :: V2 CInt
-    } deriving Show
+type Player = Entity
 
 newPlayer :: Player
-newPlayer = Player $ V2 0 0
+newPlayer = Entity 
+    { entityPhysics  = Physics (V2 0 0) 1.0
+    , entityHitbox   = Multi []
+    , entityPosition = V2 0 0 
+    }
 
 movePlayer :: Player -> Controller -> Player
-movePlayer (Player vec) = Player . (vec +) . (* 20) <$> movementToVector
+movePlayer player ctrl = moved { entityPhysics = newPhs }
+    where 
+        pos = entityPosition player
+        phs = entityPhysics player
+        mov = movementToVector ctrl
+        speed = round <$> physicsSpeed phs 
+        newPhs = phs { physicsSpeed = fromIntegral <$> speed + mov }
+        moved = updateEntity player

@@ -12,6 +12,7 @@ import Controls
 import Config
 import Player
 import World
+import Entity
 
 
 data GameState = GameState
@@ -31,9 +32,9 @@ data Camera = Camera
     }
 
 cameraFromPlayer :: Player -> V2 CInt -> Camera
-cameraFromPlayer (Player p) scr = Camera pos 1.0 scr
+cameraFromPlayer p scr = Camera pos 1.0 scr
     where
-        pos = p - ((`div` 2) <$> scr)
+        pos = (entityPosition p) - ((`div` 2) <$> scr)
 
 freshState :: Seed -> Configuration ->  GameState
 freshState seed cfg = GameState 
@@ -61,7 +62,7 @@ updateState events = do
         player       = movePlayer (gamePlayer state) c
         camera       = gameCamera state
         world        = gameWorld state
-        (_, world')  = runState (ensureGenerated (playerPos player)) world
+        (_, world')  = runState (ensureGenerated (entityPosition player)) world
     put $ state
         { gameController = c
         , gamePlayer = player
@@ -70,10 +71,10 @@ updateState events = do
         , isExit = wasWindowClosed events' || pauseActive c
         }
     return $ \s -> do
-        let V2 x y = playerPos player
+        let V2 x y = entityPosition player
         putStrLn $ "x: " ++ show (x `div` 32) ++ 
                   " y: " ++ show (y `div` 32) ++ 
-                  " chunk: " ++ show (coordsToChunkId (playerPos player))
+                  " chunk: " ++ show (coordsToChunkId (entityPosition player))
         return s
         
 moveCamera :: Camera -> Player -> Camera

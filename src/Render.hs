@@ -1,4 +1,4 @@
-module Render where 
+module Render (drawState, GameRenderer(..), createGameRenderer) where 
 
 import qualified Data.Map as Map
 import           SDL
@@ -23,11 +23,12 @@ createGameRenderer window = do
     return $ GameRenderer renderer
 
 drawPlayer :: GameRenderer -> Camera -> Player -> IO ()
-drawPlayer r cam (Player vec) = do
+drawPlayer r cam p = do
     let renderer = sdlRenderer r
         camPos   = cameraPos cam
+        pPos     = entityPosition p
     rendererDrawColor renderer $= V4 255 0 0 255
-    fillRect renderer $ Just $ Rectangle (P $ vec - camPos) (V2 100 100)
+    fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 100 100)
 
 drawBlock :: GameRenderer -> Camera -> Block -> V2 CInt -> CInt -> IO ()
 drawBlock r cam block pos chunkId = do
