@@ -58,15 +58,15 @@ updateControls (ev : events) keys c =
     where
         updateControls' :: Keycode -> InputMotion -> Controller -> Controller
         updateControls' k m c
-            | k == bindingUp    keys = c { movesUp    = m == Pressed }
-            | k == bindingDown  keys = c { movesDown  = m == Pressed }
-            | k == bindingLeft  keys = c { movesLeft  = m == Pressed }
-            | k == bindingRight keys = c { movesRight = m == Pressed }
+            | k == bindingUp    keys = c { movesUp     = m == Pressed }
+            | k == bindingDown  keys = c { movesDown   = m == Pressed }
+            | k == bindingLeft  keys = c { movesLeft   = m == Pressed }
+            | k == bindingRight keys = c { movesRight  = m == Pressed }
             | k == bindingPause keys = c { pauseActive = m == Pressed }
             | otherwise = c
 
 movementToVector :: Controller -> V2 Double
-movementToVector c = V2 (xMov c) (yMov c)
+movementToVector c = V2 1.0 5.0 * V2 (xMov c) (yMov c)
     where
         doubleOfBool :: Bool -> Double
         doubleOfBool True = 1.0

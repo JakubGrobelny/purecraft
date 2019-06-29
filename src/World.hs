@@ -2,6 +2,7 @@ module World where
 
 import qualified Data.Map as Map
 import           Control.Monad.State.Lazy
+import           Control.Monad
 import           Foreign.C.Types
 import           Linear(V2(..))
 
@@ -41,16 +42,14 @@ newWorld seed = World
 coordsToChunkId :: V2 CInt -> CInt
 coordsToChunkId (V2 x _) = x `div` (blockSize * chunkWidth)
 
+simulationDist :: CInt
+simulationDist = 8
+
 ensureGenerated :: V2 CInt -> State World ()
 ensureGenerated coords = do 
     let id = coordsToChunkId coords
-    ensureGeneratedId $ id - 1
-    ensureGeneratedId $ id + 1
-    ensureGeneratedId id
     pruneWorld id
-
-pruneDistance :: CInt
-pruneDistance = 8
+    forM_ [id - simulationDist .. id + simulationDist] ensureGeneratedId
 
 pruneWorld :: CInt -> State World ()
 pruneWorld id = do
@@ -61,7 +60,7 @@ pruneWorld id = do
     return ()
     where
         needed :: (CInt -> Chunk -> Bool)
-        needed chunkId chunk = dist < pruneDistance || altered
+        needed chunkId chunk = dist <= simulationDist || altered
             where
                 dist = abs $ id - chunkId
                 altered = chunkAltered chunk

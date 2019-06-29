@@ -5,7 +5,7 @@ import Foreign.C.Types
 
 
 gravity :: Double
-gravity = 1.0
+gravity = 1.5
 
 airDrag :: Double
 airDrag = 0.03
@@ -14,8 +14,8 @@ airDragV :: V2 Double
 airDragV = V2 airDrag airDrag
 
 data Physics = Physics
-    { physicsSpeed        :: V2 Double
-    , physicsMass         :: Double
+    { physicsSpeed :: V2 Double
+    , physicsMass  :: Double
     } deriving Show
 
 applySpeed :: Physics -> V2 CInt -> V2 CInt

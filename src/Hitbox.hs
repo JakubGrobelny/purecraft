@@ -32,14 +32,13 @@ hitboxesCollide :: Hitbox -> Hitbox -> Bool
 hitboxesCollide (HB hb0) (HB hb1) = or $ hb0 >>= \x -> map (bbsCollide x) hb1
 
 bbsCollide :: BoundingBox -> BoundingBox -> Bool
-bbsCollide bb0 bb1 = not $ x1' < x2 || x1 > x2' || 
-                           y1' < y2 || y1 > y2'
+bbsCollide bb0 bb1 = not $ x1' < x2 || x1 > x2' || y1' < y2 || y1 > y2'
     where
-    x1 = bbX bb0
-    y1 = bbY bb0
-    x1' = x1 + bbWidth bb0
-    y1' = y1 + bbHeight bb0
-    x2 = bbX bb1
-    y2 = bbY bb1
-    x2' = x1 + bbWidth bb1
-    y2' = y1 + bbHeight bb1
+        x1 = bbX bb0
+        y1 = bbY bb0
+        x1' = x1 + bbWidth bb0
+        y1' = y1 + bbHeight bb0
+        x2 = bbX bb1
+        y2 = bbY bb1
+        x2' = x1 + bbWidth bb1
+        y2' = y1 + bbHeight bb1
