@@ -28,4 +28,4 @@ updateEntity entity = entity
         pos  = entityPosition entity
         pos' = applyPhysics phs pos
         moveHB :: Hitbox -> V2 CInt -> Hitbox
-        moveHB hb amount = moveBB (fromIntegral <$> amount) <$> hb
+        moveHB (HB hb) amount = HB $ moveBB (fromIntegral <$> amount) <$> hb

@@ -15,7 +15,7 @@ type Player = Entity
 newPlayer :: Player
 newPlayer = Entity 
     { entityPhysics  = Physics (V2 0 0) 1.0
-    , entityHitbox   = Multi []
+    , entityHitbox   = HB []
     , entityPosition = V2 0 0 
     }
 

@@ -1,4 +1,4 @@
-module Hitbox where
+module Hitbox  where
 
 import SDL
 import Linear(V2(..))
@@ -17,11 +17,7 @@ data SingleOrList a
     | Multi [a]
     deriving Show
 
-type Hitbox = SingleOrList BoundingBox
-    
-instance Functor SingleOrList where
-    fmap f (Single bb) = Single $ f bb
-    fmap f (Multi bbs) = Multi $ map f bbs
+newtype Hitbox = HB [BoundingBox] deriving Show
 
 moveBB :: V2 Int -> BoundingBox -> BoundingBox
 moveBB (V2 deltaX deltaY) bb = bb
@@ -32,20 +28,18 @@ moveBB (V2 deltaX deltaY) bb = bb
         x = bbX bb
         y = bbY bb
 
-isColliding :: Hitbox -> Hitbox -> Bool
-isColliding (Multi hbs1) (Multi hbs2) =
-    any (\hb -> any ((isColliding $ Single hb) . Single) hbs2) hbs1 
-isColliding (Multi hbs) (Single hb) = 
-    any (\h -> isColliding (Single h) (Single hb)) hbs
-isColliding (Single hb1) (Single hb2) = not $ x1' < x2 || x1 > x2' || 
-                                              y1' < y2 || y1 > y2'
+hitboxesCollide :: Hitbox -> Hitbox -> Bool
+hitboxesCollide (HB hb0) (HB hb1) = or $ hb0 >>= \x -> map (bbsCollide x) hb1
+
+bbsCollide :: BoundingBox -> BoundingBox -> Bool
+bbsCollide bb0 bb1 = not $ x1' < x2 || x1 > x2' || 
+                           y1' < y2 || y1 > y2'
     where
-        x1 = bbX hb1
-        y1 = bbY hb1
-        x1' = x1 + bbWidth hb1
-        y1' = y1 + bbHeight hb1
-        x2 = bbX hb2
-        y2 = bbY hb2
-        x2' = x1 + bbWidth hb2
-        y2' = y1 + bbHeight hb2
-isColliding hb hbs = isColliding hbs hb
+    x1 = bbX bb0
+    y1 = bbY bb0
+    x1' = x1 + bbWidth bb0
+    y1' = y1 + bbHeight bb0
+    x2 = bbX bb1
+    y2 = bbY bb1
+    x2' = x1 + bbWidth bb1
+    y2' = y1 + bbHeight bb1
