@@ -65,15 +65,15 @@ updateControls (ev : events) keys c =
             | k == bindingPause keys = c { pauseActive = m == Pressed }
             | otherwise = c
 
-movementToVector :: Controller -> V2 CInt
+movementToVector :: Controller -> V2 Double
 movementToVector c = V2 (xMov c) (yMov c)
     where
-        intOfBool :: Bool -> CInt
-        intOfBool True = 1
-        intOfBool False = 0
-        xMov :: Controller -> CInt
+        doubleOfBool :: Bool -> Double
+        doubleOfBool True = 1.0
+        doubleOfBool False = 0.0
+        xMov :: Controller -> Double
         xMov Controller{movesLeft = l, movesRight = r} =
-            intOfBool r - intOfBool l
-        yMov :: Controller -> CInt
+            doubleOfBool r - doubleOfBool l
+        yMov :: Controller -> Double
         yMov Controller{movesUp = u, movesDown = d} =
-            intOfBool d - intOfBool u
+            doubleOfBool d - doubleOfBool u

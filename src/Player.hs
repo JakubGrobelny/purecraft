@@ -20,11 +20,6 @@ newPlayer = Entity
     }
 
 movePlayer :: Player -> Controller -> Player
-movePlayer player ctrl = moved { entityPhysics = newPhs }
+movePlayer player ctrl = updateEntity player mov
     where 
-        pos = entityPosition player
-        phs = entityPhysics player
         mov = movementToVector ctrl
-        speed = round <$> physicsSpeed phs 
-        newPhs = phs { physicsSpeed = fromIntegral <$> speed + mov }
-        moved = updateEntity player

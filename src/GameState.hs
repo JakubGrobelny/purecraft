@@ -13,6 +13,7 @@ import Config
 import Player
 import World
 import Entity
+import Physics
 
 
 data GameState = GameState
@@ -71,10 +72,13 @@ updateState events = do
         , isExit = wasWindowClosed events' || pauseActive c
         }
     return $ \s -> do
-        let V2 x y = entityPosition player
+        let V2 x y  = entityPosition player
+            chunkId = coordsToChunkId $ V2 x y
+            speed   = (physicsSpeed . entityPhysics) player
         putStrLn $ "x: " ++ show (x `div` 32) ++ 
                   " y: " ++ show (y `div` 32) ++ 
-                  " chunk: " ++ show (coordsToChunkId (entityPosition player))
+                  " chunk: " ++ show chunkId ++
+                  " speed: " ++ show speed
         return s
         
 moveCamera :: Camera -> Player -> Camera

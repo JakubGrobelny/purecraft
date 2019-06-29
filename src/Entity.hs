@@ -17,15 +17,16 @@ data Block
     = Air
     | Stone
 
-updateEntity :: Entity -> Entity
-updateEntity entity = entity
+updateEntity :: Entity -> V2 Double -> Entity
+updateEntity entity accel = entity
     { entityHitbox   = moveHB hb (pos' - pos)
     , entityPosition = pos'
+    , entityPhysics  = applyAcceleration phs accel
     }
     where
         hb   = entityHitbox entity
         phs  = entityPhysics entity
         pos  = entityPosition entity
-        pos' = applyPhysics phs pos
+        pos' = applySpeed phs pos
         moveHB :: Hitbox -> V2 CInt -> Hitbox
         moveHB (HB hb) amount = HB $ moveBB (fromIntegral <$> amount) <$> hb
