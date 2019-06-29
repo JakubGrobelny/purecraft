@@ -10,6 +10,7 @@ import GameState
 import Player
 import World
 import Entity
+import Block
 
 
 -- this renderer will hold the loaded textures

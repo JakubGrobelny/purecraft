@@ -13,10 +13,6 @@ data Entity = Entity
     , entityPosition :: V2 CInt
     } deriving Show
 
-data Block
-    = Air
-    | Stone
-
 updateEntity :: Entity -> V2 Double -> Entity
 updateEntity entity accel = entity
     { entityHitbox   = moveHB hb (pos' - pos)

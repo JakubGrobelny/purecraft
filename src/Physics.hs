@@ -4,6 +4,9 @@ import Linear(V2(..))
 import Foreign.C.Types
 
 
+import Hitbox
+
+
 gravity :: Double
 gravity = 1.5
 

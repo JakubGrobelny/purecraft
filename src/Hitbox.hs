@@ -6,10 +6,10 @@ import Foreign.C.Types
 
 
 data BoundingBox = BB
-    { bbX :: Int
-    , bbY :: Int
-    , bbWidth  :: Int
-    , bbHeight :: Int 
+    { bbX :: CInt
+    , bbY :: CInt
+    , bbWidth  :: CInt
+    , bbHeight :: CInt 
     } deriving Show
 
 data SingleOrList a
@@ -19,7 +19,7 @@ data SingleOrList a
 
 newtype Hitbox = HB [BoundingBox] deriving Show
 
-moveBB :: V2 Int -> BoundingBox -> BoundingBox
+moveBB :: V2 CInt -> BoundingBox -> BoundingBox
 moveBB (V2 deltaX deltaY) bb = bb
     { bbX = x + deltaX
     , bbY = y + deltaY
