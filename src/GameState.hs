@@ -61,13 +61,14 @@ updateState events = do
     state <- get
     let keys         = keyBindings $ gameConfig state
         (c, events') = updateControls events keys $ gameController state
-        player       = acceleratePlayer (gamePlayer state) c
-        camera       = gameCamera state
         world        = gameWorld state
-        (_, world')  = runState (ensureGenerated (entityPosition player)) world
+        player       = gamePlayer state
+        world'       = execState (ensureGenerated (entityPosition player)) world
+        player'      = execState (moveEntity world') player
+        camera       = gameCamera state
     put $ state
         { gameController = c
-        , gamePlayer = snd $ runState (moveEntity world') player
+        , gamePlayer = acceleratePlayer player' c
         , gameCamera = moveCamera camera player
         , gameWorld  = world'
         , isExit = wasWindowClosed events' || pauseActive c
@@ -76,12 +77,12 @@ updateState events = do
         let V2 x y  = entityPosition player
             chunkId = coordsToChunkId $ V2 x y
             speed   = (physicsSpeed . entityPhysics) player
-        putStrLn $ "x: " ++ show (x `div` 32) ++ 
-                  " y: " ++ show (y `div` 32) ++ 
-                  " chunk: " ++ show chunkId ++
-                  " speed: " ++ show speed
+        putStrLn $ "x: " ++ show x ++ 
+                   " y: " ++ show y ++ 
+                   " chunk: " ++ show chunkId ++
+                   " speed: " ++ show speed ++ (show $ entityHitbox player)
         return s
-        
+
 moveCamera :: Camera -> Player -> Camera
 moveCamera cam = flip cameraFromPlayer (cameraRes cam)
 

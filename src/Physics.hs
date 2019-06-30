@@ -37,7 +37,7 @@ applyAcceleration phs accel = phs { physicsSpeed = normalize newSpeed }
         newSpeed     = oldSpeed + accel + gravityAccel - drag
         normalize :: V2 Double -> V2 Double
         normalize (V2 x y) = V2
-            (if (abs x) < 0.2 then 0.0 else x)
-            (if (abs y) < 0.0 then 0.0 else y)
+            (if (abs x) < 1.0 then 0.0 else x)
+            (if (abs y) < 1.0 then 0.0 else y)
 
 

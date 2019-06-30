@@ -37,20 +37,20 @@ moveHB :: Hitbox -> V2 CInt -> Hitbox
 moveHB (HB bbs) amount = HB $ map (moveBB (fromIntegral <$> amount)) bbs
 
 hitboxesCollide :: Hitbox -> Hitbox -> Bool
-hitboxesCollide (HB hb0) (HB hb1) = or $ hb0 >>= \x -> map (bbsCollide x) hb1
+hitboxesCollide (HB hb0) (HB hb1) = or $ hb1 >>= \x -> map (bbsCollide x) hb0
 
 blockBoundingBox :: Block -> BoundingBox
 blockBoundingBox (Block (V2 x y) _) = BB x y blockSize blockSize
 
 bbsCollide :: BoundingBox -> BoundingBox -> Bool
-bbsCollide bb0 bb1 = not $ x1' < x2 || x1 > x2' || y1' > y2 || y1 < y2'
+bbsCollide bb1 bb2 = not (x1' < x2 || x1 > x2' || y1' < y2 || y1 > y2')
     where
-        x1 = bbX bb0
-        y1 = bbY bb0
-        x1' = x1 + bbWidth bb0
-        y1' = y1 + bbHeight bb0
+        x1 = bbX bb1
+        y1 = bbY bb1
+        x1' = x1 + bbWidth bb1
+        y1' = y1 + bbHeight bb1
 
-        x2 = bbX bb1
-        y2 = bbY bb1
-        x2' = x1 + bbWidth bb1
-        y2' = y1 + bbHeight bb1
+        x2 = bbX bb2
+        y2 = bbY bb2
+        x2' = x2 + bbWidth bb2
+        y2' = y2 + bbHeight bb2

@@ -25,7 +25,7 @@ getChunkSolidBlocks chunk id =
         chunk
     where
         toBlock :: ((CInt, CInt), BlockType) -> Block
-        toBlock ((x, y), t) = Block (V2 x y) t
+        toBlock ((x, y), t) = Block (V2 x' y') t
             where
                 x' = (x * blockSize) + (id * blockSize * chunkWidth)
                 y' = y * blockSize
@@ -86,7 +86,7 @@ lookupChunk w = flip Map.lookup $ worldChunks w
 generateChunk :: Seed -> CInt -> Chunk
 generateChunk seed id = Chunk
     { chunkBlocks = Map.fromList
-        [((x,y), if y >= 128 - id then Stone else Air) | 
+        [((x,y), if y == (if id `mod` 2 == 0 then (+) else (-)) 128 id then Stone else Air) | 
             x <- [0..chunkWidth-1], 
             y <- [0..chunkHeight-1]]
     , chunkBackground = Map.fromList 

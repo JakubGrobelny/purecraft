@@ -6,7 +6,6 @@ import Control.Monad
 import Linear(V2(..))
 import Foreign.C.Types
 
-
 import World
 import Entity
 import Hitbox
@@ -16,7 +15,7 @@ import Utility
 
 
 numberOfSubsteps :: Int
-numberOfSubsteps = 3
+numberOfSubsteps = 4
 
 moveEntity :: World -> State Entity ()
 moveEntity world = do
@@ -25,10 +24,10 @@ moveEntity world = do
         substepSpeed = (/ fromIntegral numberOfSubsteps) <$> speed
     case getSurroundings world entity of
         Nothing     -> return ()
-        Just blocks -> do
-            let blocksHB = HB $ map blockBoundingBox blocks
+        Just blocks ->
+            let blocksHB = HB $ map blockBoundingBox blocks in
             replicateM_ numberOfSubsteps $ performSubstep substepSpeed blocksHB
-            
+
 stopEntity :: Entity -> Entity
 stopEntity entity = entity { entityPhysics = static }
     where
@@ -37,23 +36,25 @@ stopEntity entity = entity { entityPhysics = static }
 performSubstep :: V2 Double -> Hitbox -> State Entity ()
 performSubstep speed blocksHB = do
     entity <- get
-    let newHB = moveHB (entityHitbox entity) (floor <$> speed)
-    if hitboxesCollide newHB blocksHB
+    let newHB = moveHB (entityHitbox entity) (truncate <$> speed)
+    if hitboxesCollide blocksHB newHB
         then
             put $ stopEntity entity
         else
             let pos  = entityPosition entity
-                pos' = pos + (floor <$> speed) in
+                pos' = pos + (truncate <$> speed) in
             put $ entity { entityPosition = pos', entityHitbox = newHB }
 
 getSurroundings :: World -> Entity -> Maybe [Block]
 getSurroundings world entity = do
     let pos         = entityPosition entity
-        chunkId     = entityToChunkId entity
+        chunkId     = coordsToChunkId pos
         speed       = physicsSpeed $ entityPhysics entity
-        chunkNextId = chunkId + (if movingLeft entity then -1 else 1)
-    chunk     <- lookupChunk world chunkId
-    chunkNext <- lookupChunk world chunkNextId
+    chunk  <- lookupChunk world chunkId
+    chunkL <- lookupChunk world $ chunkId - 1
+    chunkR <- lookupChunk world $ chunkId + 1
     let blocks = getChunkSolidBlocks chunk chunkId ++ 
-                 getChunkSolidBlocks chunkNext chunkNextId
+                 getChunkSolidBlocks chunkL (chunkId - 1) ++
+                 getChunkSolidBlocks chunkR (chunkId + 1)
     return blocks
+
