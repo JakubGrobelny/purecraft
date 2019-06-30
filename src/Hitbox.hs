@@ -45,7 +45,7 @@ blockBoundingBox :: Block -> BoundingBox
 blockBoundingBox (Block (V2 x y) _) = BB x y blockSize blockSize
 
 bbsCollide :: BoundingBox -> BoundingBox -> Bool
-bbsCollide bb1 bb2 = not (x1' < x2 || x1 > x2' || y1' < y2 || y1 > y2')
+bbsCollide bb1 bb2 = not (x1' <= x2 || x1 >= x2' || y1' <= y2 || y1 >= y2')
     where
         x1 = bbX bb1
         y1 = bbY bb1

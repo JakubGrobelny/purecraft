@@ -25,6 +25,30 @@ moveEntity world = do
         numOfSubsteps = divideIntoSubsteps speed
         substepSpeed  = (/ fromIntegral numOfSubsteps) <$> speed
     replicateM_ numOfSubsteps $ performSubstep substepSpeed blocksHB
+    clearEntitySpeed
+    checkIfGrounded blocksHB
+
+clearEntitySpeed :: State Entity ()
+clearEntitySpeed = do
+    entity <- get
+    put $ entity { entityPhysics = clearSpeed $ entityPhysics entity }
+    where
+        normalize :: V2 Double -> V2 Double
+        normalize (V2 x y) = V2
+            (if (abs x) < 0.5 then 0.0 else x)
+            (if (abs y) < 0.5 then 0.0 else y)
+        clearSpeed :: Physics -> Physics
+        clearSpeed phs = phs { physicsSpeed = normalize $ physicsSpeed phs}
+
+checkIfGrounded :: Hitbox -> State Entity ()
+checkIfGrounded worldHB = do
+    entity <- get
+    let hbDown = moveHB (entityHitbox entity) $ V2 0 1
+    if hitboxesCollide hbDown worldHB
+        then do 
+            put $ entity { entityGrounded = True }
+            stopEntity YAxis
+        else put $ entity { entityGrounded = False }
 
 divideIntoSubsteps :: V2 Double -> Int
 divideIntoSubsteps (V2 x y) = damp 4 $ 1 + towardsInf (abs $ logBase 2.0 avg)
@@ -39,10 +63,7 @@ stopEntity axis = do
         staticY = (entityPhysics entity) { physicsSpeed = V2 (v2x speed) 0.0 }
     case axis of 
         XAxis -> put $ entity { entityPhysics = staticX }
-        YAxis -> put $ entity 
-                     { entityPhysics  = staticY
-                     , entityGrounded = False
-                     }
+        YAxis -> put $ entity { entityPhysics = staticY }
 
 zeroSpeed :: V2 Double -> Axis -> V2 Double
 zeroSpeed speed axis = case axis of
@@ -52,7 +73,10 @@ zeroSpeed speed axis = case axis of
 tryMoveOneDirection :: Axis -> V2 Double -> Hitbox -> State Entity ()
 tryMoveOneDirection axis speed worldHB = do
     entity <- get
-    let speed' = zeroSpeed speed $ otherAxis axis
+    let thisSpeed = v2Axis axis speed
+        otherSpeed = v2Axis (otherAxis axis) speed
+        mult   = abs . fixNaN $ thisSpeed / otherSpeed
+        speed' = (* damp 1.0 mult) <$> (zeroSpeed speed $ otherAxis axis)
         newHB  = moveHB (entityHitbox entity) $ towardsInf <$> speed'
     if hitboxesCollide newHB worldHB
         then stopEntity axis

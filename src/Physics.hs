@@ -28,14 +28,10 @@ applySpeed phs pos = pos + speed
         speed = round <$> physicsSpeed phs
 
 applyAcceleration :: Physics -> Bool -> V2 Double -> Physics
-applyAcceleration phs ground accel = phs { physicsSpeed = normalize newSpeed }
+applyAcceleration phs ground accel = phs { physicsSpeed = newSpeed }
     where
         oldSpeed     = physicsSpeed phs
         mass         = physicsMass phs
         gravityAccel = V2 0.0 $ if ground then 0.0 else mass * gravity
         drag         = oldSpeed * airDragV
         newSpeed     = oldSpeed + accel + gravityAccel - drag
-        normalize :: V2 Double -> V2 Double
-        normalize (V2 x y) = V2
-            (if (abs x) < 1.0 then 0.0 else x)
-            (if (abs y) < 1.0 then 0.0 else y)

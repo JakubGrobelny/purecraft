@@ -80,7 +80,9 @@ updateState events = do
         putStrLn $ "x: " ++ show x ++ 
                    " y: " ++ show y ++ 
                    " chunk: " ++ show chunkId ++
-                   " speed: " ++ show speed ++ (show $ entityHitbox player)
+                   " speed: " ++ show speed
+        putStrLn . show $ entityHitbox player
+        putStrLn . show $ entityGrounded player
         return s
 
 moveCamera :: Camera -> Player -> Camera
