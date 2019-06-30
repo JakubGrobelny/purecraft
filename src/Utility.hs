@@ -17,6 +17,9 @@ v2x (V2 x _ ) = x
 v2y :: V2 a -> a
 v2y (V2 _ y) = y
 
+unpackV2 :: V2 a -> (a, a)
+unpackV2 (V2 x y) = (x, y)
+
 extreme :: (a -> a -> Bool) -> [a] -> a
 extreme _ [] = error "extreme: empty list"
 extreme _ [a] =  a

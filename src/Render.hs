@@ -55,12 +55,16 @@ blockColor Stone = V4 0 0 0 255
 blockColor Air   = V4 155 175 255 255
 
 drawWorld :: GameRenderer -> Camera -> World -> IO ()
-drawWorld r cam world = do
-    let camPos = normalizedCameraPos cam
-        chunkId = coordsToChunkId camPos
-    drawChunk r cam world chunkId
-    drawChunk r cam world $ chunkId - 1
-    drawChunk r cam world $ chunkId + 1
+drawWorld r cam world = mapM_ (drawBlock r cam) (fetchBlocks world cam)
+    where
+        fetchBlocks :: World -> Camera -> [Block]
+        fetchBlocks world camera = queryBlocks world coords (const True)
+        (V2 posX posY) = (`div` blockSize) <$> cameraPos cam
+        (V2 resX resY) = (`div` blockSize) <$> cameraRes cam
+        coords :: [(CInt, CInt)]
+        coords = [(x, y) | 
+            x <- [posX .. posX + resX],
+            y <- [posY .. posY + resY]]
 
 drawChunk :: GameRenderer -> Camera -> World -> CInt -> IO ()
 drawChunk r cam world id = case lookupChunk world id of
