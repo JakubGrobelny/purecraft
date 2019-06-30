@@ -43,7 +43,7 @@ drawBlock r cam b@(Block pos block) = do
     rendererDrawColor renderer $= color
     fillRect renderer $ Just $ Rectangle (P $ pos - camPos) blockSizeV
     -- drawing block's hitbox for debugging purposes
-    if isSolidBlock block
+    if isSolidBlockType block
         then do 
             let bb = blockBoundingBox b
             rendererDrawColor renderer $= V4 255 0 0 255

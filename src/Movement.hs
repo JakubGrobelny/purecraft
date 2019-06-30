@@ -5,6 +5,8 @@ import Control.Monad.State.Lazy
 import Control.Monad
 import Linear(V2(..))
 import Foreign.C.Types
+import Data.Function
+import Data.Maybe
 
 import World
 import Entity
@@ -17,16 +19,15 @@ import Utility
 numberOfSubsteps :: Int
 numberOfSubsteps = 4
 
-moveEntity :: World -> State Entity ()
+moveEntity :: World -> State Entity (IO ())
 moveEntity world = do
     entity <- get
     let speed        = physicsSpeed $ entityPhysics entity
         substepSpeed = (/ fromIntegral numberOfSubsteps) <$> speed
-    case getSurroundings world entity of
-        Nothing     -> return ()
-        Just blocks ->
-            let blocksHB = HB $ map blockBoundingBox blocks in
-            replicateM_ numberOfSubsteps $ performSubstep substepSpeed blocksHB
+        (blocks, io) = getSurroundings world entity
+        blocksHB = HB $ map blockBoundingBox blocks
+    replicateM_ numberOfSubsteps $ performSubstep substepSpeed blocksHB
+    return io
 
 stopEntity :: Entity -> Entity
 stopEntity entity = entity { entityPhysics = static }
@@ -36,25 +37,40 @@ stopEntity entity = entity { entityPhysics = static }
 performSubstep :: V2 Double -> Hitbox -> State Entity ()
 performSubstep speed blocksHB = do
     entity <- get
-    let newHB = moveHB (entityHitbox entity) (truncate <$> speed)
+    let newHB = moveHB (entityHitbox entity) (towardsInf <$> speed)
     if hitboxesCollide blocksHB newHB
         then
             put $ stopEntity entity
         else
             let pos  = entityPosition entity
-                pos' = pos + (truncate <$> speed) in
+                pos' = pos + (towardsInf <$> speed) in
             put $ entity { entityPosition = pos', entityHitbox = newHB }
 
-getSurroundings :: World -> Entity -> Maybe [Block]
-getSurroundings world entity = do
-    let pos         = entityPosition entity
-        chunkId     = coordsToChunkId pos
-        speed       = physicsSpeed $ entityPhysics entity
-    chunk  <- lookupChunk world chunkId
-    chunkL <- lookupChunk world $ chunkId - 1
-    chunkR <- lookupChunk world $ chunkId + 1
-    let blocks = getChunkSolidBlocks chunk chunkId ++ 
-                 getChunkSolidBlocks chunkL (chunkId - 1) ++
-                 getChunkSolidBlocks chunkR (chunkId + 1)
-    return blocks
-
+getSurroundings :: World -> Entity -> ([Block], IO ())
+getSurroundings world entity =
+    let pos       = entityPosition entity
+        chunkId   = coordsToChunkId pos
+        speed     = (* 2.0) <$> physicsSpeed $ entityPhysics entity
+        fromPoint = startingPos speed $ entityHitbox entity
+        toPoint   = endingPos speed $ entityHitbox entity
+        fromX     = (min `on` v2x) fromPoint toPoint
+        fromY     = (min `on` v2y) fromPoint toPoint
+        toX       = (max `on` v2x) fromPoint toPoint
+        toY       = (max `on` v2y) fromPoint toPoint
+        blocks    = queryBlocks world (positions fromX fromY toX toY) isSolidBlock
+    in (blocks, putStrLn $ show blocks)
+    where
+        startingPos :: V2 Double -> Hitbox -> V2 CInt
+        startingPos speed hb = (`div` blockSize) <$> (v2 $ 
+            hbExtremePoint hb
+                (if v2x speed > 0.0 then (<) else (>))
+                (if v2y speed > 0.0 then (<) else (>)))
+        endingPos :: V2 Double -> Hitbox -> V2 CInt
+        endingPos speed hb = (`div` blockSize) <$> (v2 $
+            hbExtremePoint (moveHB hb $ towardsInf <$> speed)
+                (if v2x speed > 0.0 then (>) else (<))
+                (if v2y speed > 0.0 then (>) else (<)))
+        positions :: CInt -> CInt -> CInt -> CInt -> [(CInt, CInt)]
+        positions fromX fromY toX toY = [(x, y) | 
+            x <- [fromX .. toX ],
+            y <- [fromY .. toY ]]

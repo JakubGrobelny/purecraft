@@ -6,9 +6,12 @@ import           Control.Monad
 import           Foreign.C.Types
 import           Linear(V2(..))
 import           Data.Function
+import           Data.List
+import           Data.Maybe
 
 import Entity
 import Block
+import Utility
 
 
 type Seed = Int
@@ -19,16 +22,34 @@ data Chunk = Chunk
     , chunkAltered :: Bool
     }
 
-getChunkSolidBlocks :: Chunk -> CInt -> [Block]
-getChunkSolidBlocks chunk id = 
-    map toBlock . (filter (isSolidBlock . snd)) . Map.toList . chunkBlocks $
-        chunk
+queryBlocks :: World -> [(CInt, CInt)] -> (Block -> Bool) -> [Block]
+queryBlocks world coords which = filter which . catMaybes $ 
+    splitCoords coords >>= (\(id, coords) -> getBlocks id coords)
     where
-        toBlock :: ((CInt, CInt), BlockType) -> Block
-        toBlock ((x, y), t) = Block (V2 x' y') t
+        splitCoords :: [(CInt, CInt)] -> [(CInt, [(CInt, CInt)])]
+        splitCoords = map addId . groupBy ((==) `on` blockCoordsToChunkId)
             where
-                x' = (x * blockSize) + (id * blockSize * chunkWidth)
-                y' = y * blockSize
+                addId :: [(CInt, CInt)] -> (CInt, [(CInt, CInt)])
+                addId cs = ((blockCoordsToChunkId . head) cs, cs)
+        fix :: CInt -> (CInt, CInt) -> (CInt, CInt)
+        fix id (x, y) = (x - id * chunkWidth, y)
+        getBlocks :: CInt -> [(CInt, CInt)] -> [Maybe Block]
+        getBlocks id coords = case lookupChunk world id of
+            Nothing -> []
+            Just chunk -> map (fixBlock id . lookupBlock chunk . fix id) coords
+        fixBlock :: CInt -> Maybe Block -> Maybe Block
+        fixBlock id block = case block of
+            Nothing -> Nothing
+            Just (Block (V2 x y) b) -> Just $
+                Block (V2 (x * blockSize + blockSize * chunkWidth * id) (y * blockSize)) b
+
+lookupBlockV :: Chunk -> V2 CInt -> Maybe Block
+lookupBlockV chunk (V2 x y) = lookupBlock chunk (x, y)
+
+lookupBlock :: Chunk -> (CInt, CInt) -> Maybe Block
+lookupBlock chunk coords = do
+    bType <- Map.lookup coords (chunkBlocks chunk)
+    return $ Block (v2 coords) bType
 
 data World = World
     { worldSeed   :: Seed
@@ -43,6 +64,9 @@ newWorld seed = World
 
 entityToChunkId :: Entity -> CInt
 entityToChunkId = coordsToChunkId . entityPosition 
+
+blockCoordsToChunkId :: (CInt, CInt) -> CInt
+blockCoordsToChunkId (x, y) = x `div` chunkWidth
 
 coordsToChunkId :: V2 CInt -> CInt
 coordsToChunkId (V2 x _) = x `div` (blockSize * chunkWidth)

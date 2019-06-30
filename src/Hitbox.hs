@@ -3,8 +3,10 @@ module Hitbox  where
 import SDL
 import Linear(V2(..))
 import Foreign.C.Types
+import Data.Function
 
 import Block
+import Utility
 
 
 data BoundingBox = BB
@@ -49,8 +51,18 @@ bbsCollide bb1 bb2 = not (x1' < x2 || x1 > x2' || y1' < y2 || y1 > y2')
         y1 = bbY bb1
         x1' = x1 + bbWidth bb1
         y1' = y1 + bbHeight bb1
-
         x2 = bbX bb2
         y2 = bbY bb2
         x2' = x2 + bbWidth bb2
         y2' = y2 + bbHeight bb2
+
+hbExtremePoint :: Hitbox
+                  -> (CInt -> CInt -> Bool) 
+                  -> (CInt -> CInt -> Bool) 
+                  -> (CInt, CInt)
+hbExtremePoint (HB bbs) cmpX cmpY = (extreme cmpX bbsXs, extreme cmpY bbsYs)
+    where
+        bbsXs :: [CInt]
+        bbsXs = bbs >>= \bb -> [bbX bb, bbX bb + bbWidth bb]
+        bbsYs :: [CInt]
+        bbsYs = bbs >>= \bb -> [bbY bb, bbY bb + bbHeight bb]
