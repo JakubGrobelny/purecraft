@@ -55,32 +55,16 @@ blockColor Stone = V4 0 0 0 255
 blockColor Air   = V4 155 175 255 255
 
 drawWorld :: GameRenderer -> Camera -> World -> IO ()
-drawWorld r cam world = mapM_ (drawBlock r cam) (fetchBlocks world cam)
+drawWorld r cam world = mapM_ (drawBlock r cam) (fetchBlocks world)
     where
-        fetchBlocks :: World -> Camera -> [Block]
-        fetchBlocks world camera = queryBlocks world coords (const True)
+        fetchBlocks :: World -> [Block]
+        fetchBlocks world = queryBlocks world coords (const True)
         (V2 posX posY) = (`div` blockSize) <$> cameraPos cam
         (V2 resX resY) = (`div` blockSize) <$> cameraRes cam
         coords :: [(CInt, CInt)]
         coords = [(x, y) | 
             x <- [posX .. posX + resX],
             y <- [posY .. posY + resY]]
-
-drawChunk :: GameRenderer -> Camera -> World -> CInt -> IO ()
-drawChunk r cam world id = case lookupChunk world id of
-    Nothing -> return ()
-    Just chunk -> do
-        let renderer = sdlRenderer r
-            blocks   = chunkBlocks chunk
-        mapM_ (draw id) $ Map.toList blocks
-    where
-        draw :: CInt -> ((CInt, CInt), BlockType) -> IO ()
-        draw chunkId ((x, y), b) = 
-            drawBlock r cam (Block (offsetBlock pos chunkId) b)
-            where
-                pos = V2 x y * blockSizeV
-                offsetBlock :: V2 CInt -> CInt -> V2 CInt
-                offsetBlock (V2 x y) id = V2 (id * chunkWidth * blockSize + x) y
 
 drawState :: GameRenderer -> GameState -> IO ()
 drawState r state = do
