@@ -3,6 +3,14 @@ module Utility where
 import Linear(V2(..))
 
 
+data Axis
+    = XAxis
+    | YAxis
+
+otherAxis :: Axis -> Axis
+otherAxis XAxis = YAxis
+otherAxis YAxis = XAxis
+
 v2Max :: Ord a => V2 a -> a
 v2Max (V2 a b)
     | a > b     = a
@@ -29,3 +37,6 @@ extreme (>) (x:xs) = if x > e then x else e
 
 towardsInf :: (RealFrac a, Integral b) => a -> b
 towardsInf x = if x < 0.0 then floor x else ceiling x
+
+damp :: Ord a => a -> a -> a
+damp limit num = if num > limit then limit else num

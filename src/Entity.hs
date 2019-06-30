@@ -12,13 +12,15 @@ data Entity = Entity
     { entityPhysics  :: Physics
     , entityHitbox   :: Hitbox
     , entityPosition :: V2 CInt
+    , entityGrounded :: Bool
     } deriving Show
 
 
 accelerateEntity :: Entity -> Acceleration -> Entity
 accelerateEntity entity accel = entity 
-    { entityPhysics = applyAcceleration phs accel }
+    { entityPhysics = applyAcceleration phs ground accel }
     where
+        ground = entityGrounded entity
         phs = entityPhysics entity
 
 movingLeft :: Entity -> Bool

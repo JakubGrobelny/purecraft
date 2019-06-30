@@ -57,9 +57,9 @@ bbsCollide bb1 bb2 = not (x1' < x2 || x1 > x2' || y1' < y2 || y1 > y2')
         y2' = y2 + bbHeight bb2
 
 hbExtremePoint :: Hitbox
-                  -> (CInt -> CInt -> Bool) 
-                  -> (CInt -> CInt -> Bool) 
-                  -> (CInt, CInt)
+               -> (CInt -> CInt -> Bool) 
+               -> (CInt -> CInt -> Bool) 
+               -> (CInt, CInt)
 hbExtremePoint (HB bbs) cmpX cmpY = (extreme cmpX bbsXs, extreme cmpY bbsYs)
     where
         bbsXs :: [CInt]

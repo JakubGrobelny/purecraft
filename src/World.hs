@@ -40,8 +40,9 @@ queryBlocks world coords which = filter which . catMaybes $
         fixBlock :: CInt -> Maybe Block -> Maybe Block
         fixBlock id block = case block of
             Nothing -> Nothing
-            Just (Block (V2 x y) b) -> Just $
-                Block (V2 (x * blockSize + blockSize * chunkWidth * id) (y * blockSize)) b
+            Just (Block (V2 x y) b) -> Just . flip Block b $ 
+                V2 (x * blockSize + blockSize * chunkWidth * id) 
+                   (y * blockSize)
 
 lookupBlockV :: Chunk -> V2 CInt -> Maybe Block
 lookupBlockV chunk (V2 x y) = lookupBlock chunk (x, y)

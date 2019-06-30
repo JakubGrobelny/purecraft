@@ -16,7 +16,8 @@ newPlayer :: Player
 newPlayer = Entity 
     { entityPhysics  = Physics (V2 0 0) 1.0
     , entityHitbox   = HB [BB 0 0 100 100]
-    , entityPosition = V2 0 0 
+    , entityPosition = V2 0 0
+    , entityGrounded = False
     }
 
 acceleratePlayer :: Player -> Controller -> Player
