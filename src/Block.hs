@@ -8,7 +8,12 @@ data BlockType
     = Air
     | Stone
 
+data BackgroundType
+    = AirBG
+
 data Block = Block (V2 CInt) BlockType
+
+data BGBlock = BGBlock (V2 CInt) BackgroundType
 
 chunkHeight :: CInt
 chunkHeight = 256

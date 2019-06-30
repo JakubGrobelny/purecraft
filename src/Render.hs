@@ -11,7 +11,7 @@ import Player
 import World
 import Entity
 import Block
-
+import Hitbox
 
 -- this renderer will hold the loaded textures
 data GameRenderer = GameRenderer
@@ -28,16 +28,27 @@ drawPlayer r cam p = do
     let renderer = sdlRenderer r
         camPos   = cameraPos cam
         pPos     = entityPosition p
-    rendererDrawColor renderer $= V4 255 0 0 255
+    rendererDrawColor renderer $= V4 0 63 127 255
     fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 100 100)
+    -- drawing the player hitbox for debugging purposes
+    let HB bbs = entityHitbox p
+    rendererDrawColor renderer $= V4 255 0 0 255
+    mapM_ (drawRect renderer) $ map (Just . flip bbToRectangle camPos) bbs
 
-drawBlock :: GameRenderer -> Camera -> Block -> CInt -> IO ()
-drawBlock r cam (Block pos block) chunkId = do
+drawBlock :: GameRenderer -> Camera -> Block -> IO ()
+drawBlock r cam b@(Block pos block) = do
     let color    = blockColor block
         camPos   = cameraPos cam
         renderer = sdlRenderer r
     rendererDrawColor renderer $= color
     fillRect renderer $ Just $ Rectangle (P $ pos - camPos) blockSizeV
+    -- drawing block's hitbox for debugging purposes
+    if isSolidBlock block
+        then do 
+            let bb = blockBoundingBox b
+            rendererDrawColor renderer $= V4 255 0 0 255
+            drawRect renderer $ Just $ bbToRectangle bb camPos
+        else return ()
     
 blockColor :: BlockType -> V4 Word8
 blockColor Stone = V4 0 0 0 255
@@ -54,13 +65,14 @@ drawWorld r cam world = do
 drawChunk :: GameRenderer -> Camera -> World -> CInt -> IO ()
 drawChunk r cam world id = case lookupChunk world id of
     Nothing -> return ()
-    Just (Chunk blocks _) -> do
+    Just chunk -> do
         let renderer = sdlRenderer r
+            blocks   = chunkBlocks chunk
         mapM_ (draw id) $ Map.toList blocks
     where
         draw :: CInt -> ((CInt, CInt), BlockType) -> IO ()
         draw chunkId ((x, y), b) = 
-            drawBlock r cam (Block (offsetBlock pos chunkId) b) chunkId
+            drawBlock r cam (Block (offsetBlock pos chunkId) b)
             where
                 pos = V2 x y * blockSizeV
                 offsetBlock :: V2 CInt -> CInt -> V2 CInt

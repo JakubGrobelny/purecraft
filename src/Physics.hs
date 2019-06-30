@@ -4,8 +4,9 @@ import Linear(V2(..))
 import Foreign.C.Types
 
 import Hitbox
-import Block
 
+
+type Acceleration = V2 Double
 
 gravity :: Double
 gravity = 1.5
@@ -27,10 +28,16 @@ applySpeed phs pos = pos + speed
         speed = round <$> physicsSpeed phs
 
 applyAcceleration :: Physics -> V2 Double -> Physics
-applyAcceleration phs accel = phs { physicsSpeed = newSpeed }
+applyAcceleration phs accel = phs { physicsSpeed = normalize newSpeed }
     where
         oldSpeed     = physicsSpeed phs
         mass         = physicsMass phs
         gravityAccel = V2 0.0 $ mass * gravity
         drag         = oldSpeed * airDragV
         newSpeed     = oldSpeed + accel + gravityAccel - drag
+        normalize :: V2 Double -> V2 Double
+        normalize (V2 x y) = V2
+            (if (abs x) < 0.2 then 0.0 else x)
+            (if (abs y) < 0.0 then 0.0 else y)
+
+

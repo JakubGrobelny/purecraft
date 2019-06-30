@@ -14,12 +14,15 @@ data BoundingBox = BB
     , bbHeight :: CInt 
     } deriving Show
 
-data SingleOrList a
-    = Single a
-    | Multi [a]
-    deriving Show
-
 newtype Hitbox = HB [BoundingBox] deriving Show
+
+bbToRectangle :: BoundingBox -> V2 CInt -> Rectangle CInt
+bbToRectangle bb offset = Rectangle (P $ V2 x y - offset) (V2 w h)
+    where
+        x = bbX bb
+        y = bbY bb
+        w = bbWidth bb
+        h = bbHeight bb
 
 moveBB :: V2 CInt -> BoundingBox -> BoundingBox
 moveBB (V2 deltaX deltaY) bb = bb
@@ -30,21 +33,23 @@ moveBB (V2 deltaX deltaY) bb = bb
         x = bbX bb
         y = bbY bb
 
+moveHB :: Hitbox -> V2 CInt -> Hitbox
+moveHB (HB bbs) amount = HB $ map (moveBB (fromIntegral <$> amount)) bbs
+
 hitboxesCollide :: Hitbox -> Hitbox -> Bool
 hitboxesCollide (HB hb0) (HB hb1) = or $ hb0 >>= \x -> map (bbsCollide x) hb1
 
-blockHitbox :: (CInt, CInt) -> CInt -> Hitbox
-blockHitbox (x, y) chunkId = HB [BB x' y blockSize blockSize]
-    where
-        x' = chunkId * chunkWidth + x
+blockBoundingBox :: Block -> BoundingBox
+blockBoundingBox (Block (V2 x y) _) = BB x y blockSize blockSize
 
 bbsCollide :: BoundingBox -> BoundingBox -> Bool
-bbsCollide bb0 bb1 = not $ x1' < x2 || x1 > x2' || y1' < y2 || y1 > y2'
+bbsCollide bb0 bb1 = not $ x1' < x2 || x1 > x2' || y1' > y2 || y1 < y2'
     where
         x1 = bbX bb0
         y1 = bbY bb0
         x1' = x1 + bbWidth bb0
         y1' = y1 + bbHeight bb0
+
         x2 = bbX bb1
         y2 = bbY bb1
         x2' = x1 + bbWidth bb1

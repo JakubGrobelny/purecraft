@@ -14,6 +14,7 @@ import Player
 import World
 import Entity
 import Physics
+import Movement
 
 
 data GameState = GameState
@@ -60,13 +61,13 @@ updateState events = do
     state <- get
     let keys         = keyBindings $ gameConfig state
         (c, events') = updateControls events keys $ gameController state
-        player       = movePlayer (gamePlayer state) c
+        player       = acceleratePlayer (gamePlayer state) c
         camera       = gameCamera state
         world        = gameWorld state
         (_, world')  = runState (ensureGenerated (entityPosition player)) world
     put $ state
         { gameController = c
-        , gamePlayer = player
+        , gamePlayer = snd $ runState (moveEntity world') player
         , gameCamera = moveCamera camera player
         , gameWorld  = world'
         , isExit = wasWindowClosed events' || pauseActive c
