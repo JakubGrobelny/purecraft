@@ -19,15 +19,14 @@ import Utility
 numberOfSubsteps :: Int
 numberOfSubsteps = 4
 
-moveEntity :: World -> State Entity (IO ())
+moveEntity :: World -> State Entity ()
 moveEntity world = do
     entity <- get
     let speed        = physicsSpeed $ entityPhysics entity
         substepSpeed = (/ fromIntegral numberOfSubsteps) <$> speed
-        (blocks, io) = getSurroundings world entity
+        blocks       = getSurroundings world entity
         blocksHB = HB $ map blockBoundingBox blocks
     replicateM_ numberOfSubsteps $ performSubstep substepSpeed blocksHB
-    return io
 
 stopEntity :: Entity -> Entity
 stopEntity entity = entity { entityPhysics = static }
@@ -46,7 +45,7 @@ performSubstep speed blocksHB = do
                 pos' = pos + (towardsInf <$> speed) in
             put $ entity { entityPosition = pos', entityHitbox = newHB }
 
-getSurroundings :: World -> Entity -> ([Block], IO ())
+getSurroundings :: World -> Entity -> [Block]
 getSurroundings world entity =
     let pos       = entityPosition entity
         chunkId   = coordsToChunkId pos
@@ -57,8 +56,7 @@ getSurroundings world entity =
         fromY     = (min `on` v2y) fromPoint toPoint
         toX       = (max `on` v2x) fromPoint toPoint
         toY       = (max `on` v2y) fromPoint toPoint
-        blocks    = queryBlocks world (positions fromX fromY toX toY) isSolidBlock
-    in (blocks, putStrLn $ show blocks)
+    in queryBlocks world (positions fromX fromY toX toY) isSolidBlock
     where
         startingPos :: V2 Double -> Hitbox -> V2 CInt
         startingPos speed hb = (`div` blockSize) <$> (v2 $ 

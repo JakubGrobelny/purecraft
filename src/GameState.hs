@@ -64,7 +64,7 @@ updateState events = do
         world        = gameWorld state
         player       = gamePlayer state
         world'       = execState (ensureGenerated (entityPosition player)) world
-        (io, player')      = runState (moveEntity world') player
+        player'      = execState (moveEntity world') player
         camera       = gameCamera state
     put $ state
         { gameController = c
@@ -81,7 +81,6 @@ updateState events = do
                    " y: " ++ show y ++ 
                    " chunk: " ++ show chunkId ++
                    " speed: " ++ show speed ++ (show $ entityHitbox player)
-        io
         return s
 
 moveCamera :: Camera -> Player -> Camera
