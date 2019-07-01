@@ -40,6 +40,6 @@ applyAcceleration phs ground accel = phs { physicsSpeed = newSpeed }
         oldSpeed     = physicsSpeed phs
         mass         = physicsMass phs
         gravityAccel = V2 0.0 $ if ground then 0.0 else mass * gravity
-        xDrag        = if ground then groundDragV else zeroV2
+        xDrag        = if ground then groundDragV else v2Zero
         drag         = oldSpeed * (airDragV + xDrag)
         newSpeed     = oldSpeed + accel + gravityAccel - drag

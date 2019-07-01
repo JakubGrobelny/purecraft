@@ -8,6 +8,7 @@ import           Linear(V2(..))
 import           Data.Function
 import           Data.List
 import           Data.Maybe
+import           Data.Bits
 
 import Entity
 import Block
@@ -111,7 +112,7 @@ lookupChunk w = flip Map.lookup $ worldChunks w
 generateChunk :: Seed -> CInt -> Chunk
 generateChunk seed id = Chunk
     { chunkBlocks = Map.fromList
-        [((x,y), if y >= (if id `mod` 2 == 0 then (+) else (-)) 128 id then Stone else Air) | 
+        [((x,y), if isGround seed id x y then Stone else Air) | 
             x <- [0..chunkWidth-1], 
             y <- [0..chunkHeight-1]]
     , chunkBackground = Map.fromList 
@@ -121,3 +122,11 @@ generateChunk seed id = Chunk
         ]
     , chunkAltered = False
     }
+    where
+        isGround :: Seed -> CInt -> CInt -> CInt -> Bool
+        isGround seed chunkId x y = y > 115 + diff
+            where
+                s' = fromIntegral (seed `mod` 20)
+                x' = 1 + abs x `mod` 20
+                i' = abs chunkId `mod` x'
+                diff = (s' + x' + i') `div` 6

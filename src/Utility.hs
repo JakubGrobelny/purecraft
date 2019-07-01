@@ -11,11 +11,14 @@ otherAxis :: Axis -> Axis
 otherAxis XAxis = YAxis
 otherAxis YAxis = XAxis
 
-zeroV2 :: Num a => V2 a
-zeroV2 = V2 0 0
+v2Zero :: Num a => V2 a
+v2Zero = V2 0 0
 
 v2Max :: Ord a => V2 a -> a
 v2Max (V2 a b) = max a b
+
+v2Min :: Ord a => V2 a -> a
+v2Min (V2 a b) = min a b
 
 v2Avg :: Fractional a => V2 a -> a
 v2Avg (V2 a b) = (a + b) / 2
@@ -34,8 +37,8 @@ v2Axis axis = case axis of
     XAxis -> v2x
     YAxis -> v2y
 
-unpackV2 :: V2 a -> (a, a)
-unpackV2 (V2 x y) = (x, y)
+v2Unpack :: V2 a -> (a, a)
+v2Unpack (V2 x y) = (x, y)
 
 extreme :: (a -> a -> Bool) -> [a] -> a
 extreme _ [] = error "extreme: empty list"

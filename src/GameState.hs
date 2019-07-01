@@ -68,7 +68,7 @@ updateState events = do
         camera       = gameCamera state
     put $ state
         { gameController = c
-        , gamePlayer = execState (acceleratePlayer c) player'
+        , gamePlayer = acceleratePlayer c player'
         , gameCamera = moveCamera camera player
         , gameWorld  = world'
         , isExit = wasWindowClosed events' || playerPauseActive c

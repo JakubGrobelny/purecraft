@@ -24,7 +24,7 @@ newPlayer = Entity
     }
 
 verticalAcceleration :: Double
-verticalAcceleration = 2.0
+verticalAcceleration = 1.0
 
 airborneVerticalHandicap :: Double
 airborneVerticalHandicap = 0.25
@@ -33,11 +33,16 @@ jumpAcceleration :: Double
 jumpAcceleration = -15.0
 
 longJumpMult :: Double
-longJumpMult = 0.06
+longJumpMult = 0.063
 
-acceleratePlayer :: Controller -> State Player ()
-acceleratePlayer ctrl = do
-    player <- get
+sprintMult :: Double
+sprintMult = 1.75
+
+speedJumpBonus :: Double
+speedJumpBonus = 0.02
+
+acceleratePlayer :: Controller -> Player -> Player
+acceleratePlayer ctrl player =
     let ground  = entityGrounded player
         xSpeed  = verticalAcceleration * controlsToXMovement ctrl
         xSpeed' = if ground then xSpeed else xSpeed * airborneVerticalHandicap
@@ -49,11 +54,12 @@ acceleratePlayer ctrl = do
                         then speed * longJumpMult
                         else 0.0
             else 0.0
-        vec = V2 xSpeed' ySpeed
+        vec = V2 xSpeed' $ ySpeed + (ySpeed * xSpeed' * speedJumpBonus)
         phs = entityPhysics player
-    put $ player { entityPhysics = applyAcceleration phs ground vec }
+    in player { entityPhysics = applyAcceleration phs ground vec }
     where
         controlsToXMovement :: Controller ->  Double
         controlsToXMovement ctrl = 
+            (* if playerSprints  ctrl then sprintMult else 1.0) $ 
             (if playerMovesLeft  ctrl then -1.0 else 0.0) +
             (if playerMovesRight ctrl then  1.0 else 0.0)
