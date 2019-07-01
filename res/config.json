@@ -17,6 +17,9 @@
         },
         "bindingPause": {
             "unwrapKeycode": 27
+        },
+        "bindingRun": {
+            "unwrapKeycode": 1073742049
         }
     }
 }

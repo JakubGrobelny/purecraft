@@ -51,9 +51,7 @@ checkIfGrounded worldHB = do
         else put $ entity { entityGrounded = False }
 
 divideIntoSubsteps :: V2 Double -> Int
-divideIntoSubsteps (V2 x y) = damp 4 $ 1 + towardsInf (abs $ logBase 2.0 avg)
-    where    
-        avg = (x + y) / 2.0
+divideIntoSubsteps = (+ 1) . towardsInf . abs . (/ 8.0) . v2Avg
 
 stopEntity :: Axis -> State Entity ()
 stopEntity axis = do

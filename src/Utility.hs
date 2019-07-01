@@ -11,10 +11,14 @@ otherAxis :: Axis -> Axis
 otherAxis XAxis = YAxis
 otherAxis YAxis = XAxis
 
+zeroV2 :: Num a => V2 a
+zeroV2 = V2 0 0
+
 v2Max :: Ord a => V2 a -> a
-v2Max (V2 a b)
-    | a > b     = a
-    | otherwise = b
+v2Max (V2 a b) = max a b
+
+v2Avg :: Fractional a => V2 a -> a
+v2Avg (V2 a b) = (a + b) / 2
 
 v2 :: (a, a) -> V2 a
 v2 = uncurry V2

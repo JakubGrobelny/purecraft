@@ -15,6 +15,7 @@ data KeyBindings = KeyBindings
     , bindingLeft  :: Keycode
     , bindingRight :: Keycode
     , bindingPause :: Keycode
+    , bindingRun   :: Keycode
     } deriving (Generic, Show)
 
 defaultKeyBindings :: KeyBindings
@@ -24,27 +25,30 @@ defaultKeyBindings = KeyBindings
     , bindingRight = KeycodeD
     , bindingDown  = KeycodeS
     , bindingPause = KeycodeEscape
+    , bindingRun   = KeycodeLShift
     }
 
 data Controller = Controller
-    { aimPosX     :: Int32
-    , aimPosY     :: Int32
-    , movesLeft   :: Bool
-    , movesRight  :: Bool
-    , movesUp     :: Bool
-    , movesDown   :: Bool
-    , pauseActive :: Bool 
+    { playerAimPosX     :: Int32
+    , playerAimPosY     :: Int32
+    , playerMovesLeft   :: Bool
+    , playerMovesRight  :: Bool
+    , playerMovesUp     :: Bool
+    , playerPauseActive :: Bool
+    , playerCrouches    :: Bool 
+    , playerSprints     :: Bool
     } deriving Show
 
 newController :: Controller
 newController = Controller
-    { aimPosX     = 0
-    , aimPosY     = 0
-    , movesLeft   = False
-    , movesRight  = False
-    , movesUp     = False
-    , movesDown   = False
-    , pauseActive = False
+    { playerAimPosX     = 0
+    , playerAimPosY     = 0
+    , playerMovesLeft   = False
+    , playerMovesRight  = False
+    , playerMovesUp     = False
+    , playerPauseActive = False
+    , playerCrouches    = False
+    , playerSprints     = False
     }
 
 updateControls :: [Event] -> KeyBindings -> Controller -> (Controller, [Event])
@@ -58,22 +62,10 @@ updateControls (ev : events) keys c =
     where
         updateControls' :: Keycode -> InputMotion -> Controller -> Controller
         updateControls' k m c
-            | k == bindingUp    keys = c { movesUp     = m == Pressed }
-            | k == bindingDown  keys = c { movesDown   = m == Pressed }
-            | k == bindingLeft  keys = c { movesLeft   = m == Pressed }
-            | k == bindingRight keys = c { movesRight  = m == Pressed }
-            | k == bindingPause keys = c { pauseActive = m == Pressed }
+            | k == bindingUp    keys = c { playerMovesUp     = m == Pressed }
+            | k == bindingLeft  keys = c { playerMovesLeft   = m == Pressed }
+            | k == bindingRight keys = c { playerMovesRight  = m == Pressed }
+            | k == bindingDown  keys = c { playerCrouches    = m == Pressed }
+            | k == bindingRun   keys = c { playerSprints     = m == Pressed }
+            | k == bindingPause keys = c { playerPauseActive = m == Pressed }
             | otherwise = c
-
-movementToVector :: Controller -> V2 Double
-movementToVector c = V2 1.0 5.0 * V2 (xMov c) (yMov c)
-    where
-        doubleOfBool :: Bool -> Double
-        doubleOfBool True = 1.0
-        doubleOfBool False = 0.0
-        xMov :: Controller -> Double
-        xMov Controller{movesLeft = l, movesRight = r} =
-            doubleOfBool r - doubleOfBool l
-        yMov :: Controller -> Double
-        yMov Controller{movesUp = u, movesDown = d} =
-            doubleOfBool d - doubleOfBool u

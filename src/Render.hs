@@ -29,7 +29,7 @@ drawPlayer r cam p = do
         camPos   = cameraPos cam
         pPos     = entityPosition p
     rendererDrawColor renderer $= V4 0 63 127 255
-    fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 100 100)
+    fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 48 80)
     -- drawing the player hitbox for debugging purposes
     let HB bbs = entityHitbox p
     rendererDrawColor renderer $= V4 255 0 0 255

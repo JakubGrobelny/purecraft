@@ -4,18 +4,25 @@ import Linear(V2(..))
 import Foreign.C.Types
 
 import Hitbox
+import Utility
 
 
 type Acceleration = V2 Double
 
 gravity :: Double
-gravity = 1.5
+gravity = 1.20
 
 airDrag :: Double
-airDrag = 0.03
+airDrag = 0.037
 
 airDragV :: V2 Double
 airDragV = V2 airDrag airDrag
+
+groundDrag :: Double
+groundDrag = 0.1
+
+groundDragV :: V2 Double
+groundDragV = V2 groundDrag 0.0
 
 data Physics = Physics
     { physicsSpeed :: V2 Double
@@ -33,5 +40,6 @@ applyAcceleration phs ground accel = phs { physicsSpeed = newSpeed }
         oldSpeed     = physicsSpeed phs
         mass         = physicsMass phs
         gravityAccel = V2 0.0 $ if ground then 0.0 else mass * gravity
-        drag         = oldSpeed * airDragV
+        xDrag        = if ground then groundDragV else zeroV2
+        drag         = oldSpeed * (airDragV + xDrag)
         newSpeed     = oldSpeed + accel + gravityAccel - drag
