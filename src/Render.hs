@@ -29,7 +29,7 @@ drawPlayer r cam p = do
         camPos   = cameraPos cam
         pPos     = entityPosition p
     rendererDrawColor renderer $= V4 0 63 127 255
-    fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 48 80)
+    fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 32 80)
 
 drawBlock :: GameRenderer -> Camera -> Block -> IO ()
 drawBlock r cam b@(Block pos block) = do

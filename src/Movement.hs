@@ -19,39 +19,70 @@ import Utility
 moveEntity :: World -> State Entity ()
 moveEntity world = do
     entity <- get
-    let speed         = physicsSpeed $ entityPhysics entity
-        blocks        = getSurroundings world entity
-        blocksHB      = HB $ map blockBoundingBox blocks
-        numOfSubsteps = divideIntoSubsteps speed
-        substepSpeed  = (/ fromIntegral numOfSubsteps) <$> speed
-    replicateM_ numOfSubsteps $ performSubstep substepSpeed blocksHB
-    clearEntitySpeed
+    let speed    = physicsSpeed $ entityPhysics entity
+        blocks   = getSurroundings world entity
+        blocksHB = HB $ map blockBoundingBox blocks
+        entityHB = entityHitbox entity
+        pos      = entityPosition entity
+        newSpeed = bisectMovement (v2Zero) speed entityHB blocksHB
+    changeEntityPositionBy $ round <$> newSpeed
+    tryMoveOneDirection YAxis speed blocksHB
+    tryMoveOneDirection XAxis speed blocksHB
     checkIfGrounded blocksHB
+    clearEntitySpeed
+
+changeEntityPositionBy :: V2 CInt -> State Entity ()
+changeEntityPositionBy amount = do
+    entity <- get
+    let pos = entityPosition entity
+        hb  = entityHitbox entity
+    put $ entity
+        { entityPosition = pos + amount
+        , entityHitbox = moveHB hb amount
+        }
+
+bisectMovement :: V2 Double -> V2 Double -> Hitbox -> Hitbox -> V2 Double
+bisectMovement min max entityHB worldHB =
+    if approxEq min max || 
+      (not $ hitboxesCollide (moveHB entityHB $ round <$> max) worldHB)
+        then max
+        else let between = (/ 2.0) <$> (min + max)
+            in if hitboxesCollide (moveHB entityHB $ round <$> between) worldHB
+                then bisectMovement min between entityHB worldHB
+                else if isZero between || isBest between entityHB worldHB
+                    then between
+                    else bisectMovement between max entityHB worldHB
+    where
+        approxEq :: V2 Double -> V2 Double -> Bool
+        approxEq = (==) `on` (round <$>)
+        normalize :: V2 Double -> V2 CInt
+        normalize = (truncate . signum <$>)
+        isBest :: V2 Double -> Hitbox -> Hitbox -> Bool 
+        isBest mov entityHB worldHB =
+            let mov' = (round <$> mov) + normalize mov
+            in hitboxesCollide (moveHB entityHB mov') worldHB
+        isZero :: V2 Double -> Bool
+        isZero = and . ((== 0) <$>)
 
 clearEntitySpeed :: State Entity ()
 clearEntitySpeed = do
     entity <- get
-    put $ entity { entityPhysics = clearSpeed $ entityPhysics entity }
+    let phs   = entityPhysics entity
+        speed = physicsSpeed phs
+    put $ entity { entityPhysics = phs { physicsSpeed = fix <$> speed } }
     where
-        normalize :: V2 Double -> V2 Double
-        normalize (V2 x y) = V2
-            (if (abs x) < 0.5 then 0.0 else x)
-            (if (abs y) < 0.5 then 0.0 else y)
-        clearSpeed :: Physics -> Physics
-        clearSpeed phs = phs { physicsSpeed = normalize $ physicsSpeed phs}
+        fix :: Double -> Double
+        fix x = if abs x < 0.3 then 0.0 else x
 
 checkIfGrounded :: Hitbox -> State Entity ()
 checkIfGrounded worldHB = do
     entity <- get
     let hbDown = moveHB (entityHitbox entity) $ V2 0 1
     if hitboxesCollide hbDown worldHB
-        then do 
+        then do
             put $ entity { entityGrounded = True }
             stopEntity YAxis
         else put $ entity { entityGrounded = False }
-
-divideIntoSubsteps :: V2 Double -> Int
-divideIntoSubsteps = (+ 1) . towardsInf . abs . (/ 8.0) . v2Avg
 
 stopEntity :: Axis -> State Entity ()
 stopEntity axis = do
@@ -85,27 +116,6 @@ tryMoveOneDirection axis speed worldHB = do
                 { entityPosition = pos' 
                 , entityHitbox   = newHB 
                 }
-
-performSubstep :: V2 Double -> Hitbox -> State Entity ()
-performSubstep speed blocksHB = do
-    entity <- get
-    let newHB = moveHB (entityHitbox entity) (towardsInf <$> speed)
-    if hitboxesCollide blocksHB newHB
-        then do
-            tryMoveOneDirection XAxis speed blocksHB
-            tryMoveOneDirection YAxis speed blocksHB
-        else
-            let pos  = entityPosition entity
-                pos' = pos + (towardsInf <$> speed)
-            in put $ entity 
-                { entityPosition = pos'
-                , entityHitbox   = newHB
-                }
-
-canMoveOneDirection :: Hitbox -> Hitbox -> V2 Double -> Bool
-canMoveOneDirection entityHB worldHB speed = not $ hitboxesCollide newHB worldHB
-    where
-        newHB = moveHB entityHB $ towardsInf <$> speed
 
 getSurroundings :: World -> Entity -> [Block]
 getSurroundings world entity =

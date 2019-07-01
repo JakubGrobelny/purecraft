@@ -19,7 +19,7 @@ airDragV :: V2 Double
 airDragV = V2 airDrag airDrag
 
 groundDrag :: Double
-groundDrag = 0.1
+groundDrag = 0.28
 
 groundDragV :: V2 Double
 groundDragV = V2 groundDrag 0.0

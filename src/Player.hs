@@ -17,26 +17,26 @@ type Player = Entity
 
 newPlayer :: Player
 newPlayer = Entity 
-    { entityPhysics  = Physics (V2 0 0) 0.8
-    , entityHitbox   = HB [BB 0 (100 * blockSize) 48 80]
+    { entityPhysics  = Physics (V2 0 0) 0.60
+    , entityHitbox   = HB [BB 0 (100 * blockSize) 32 80]
     , entityPosition = V2 0 (100 * blockSize)
     , entityGrounded = False
     }
 
 verticalAcceleration :: Double
-verticalAcceleration = 1.0
+verticalAcceleration = 0.95
 
 airborneVerticalHandicap :: Double
-airborneVerticalHandicap = 0.25
+airborneVerticalHandicap = 0.2
 
 jumpAcceleration :: Double
-jumpAcceleration = -15.0
+jumpAcceleration = -7.0
 
 longJumpMult :: Double
-longJumpMult = 0.063
+longJumpMult = 0.1
 
 sprintMult :: Double
-sprintMult = 1.75
+sprintMult = 1.35
 
 speedJumpBonus :: Double
 speedJumpBonus = 0.02
