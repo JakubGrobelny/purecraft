@@ -10,7 +10,7 @@ import Utility
 type Acceleration = V2 Double
 
 gravity :: Double
-gravity = 1.20
+gravity = 1.0
 
 airDrag :: Double
 airDrag = 0.037
