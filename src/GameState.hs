@@ -15,6 +15,8 @@ import World
 import Entity
 import Physics
 import Movement
+import Block
+import Camera
 
 
 data GameState = GameState
@@ -26,17 +28,6 @@ data GameState = GameState
     , gameConfig     :: Configuration
     , gameWorld      :: World
     }
-
-data Camera = Camera
-    { cameraPos  :: V2 CInt
-    , cameraZoom :: Double
-    , cameraRes  :: V2 CInt
-    }
-
-cameraFromPlayer :: Player -> V2 CInt -> Camera
-cameraFromPlayer p scr = Camera pos 1.0 scr
-    where
-        pos = (entityPosition p) - ((`div` 2) <$> scr)
 
 freshState :: Seed -> Configuration ->  GameState
 freshState seed cfg = GameState 
@@ -60,33 +51,29 @@ updateState :: [SDL.Event] -> State GameState (GameState -> IO GameState)
 updateState events = do
     state <- get
     let keys         = keyBindings $ gameConfig state
-        (c, events') = updateControls events keys $ gameController state
+        (ctrl, events') = updateControls events keys $ gameController state
         world        = gameWorld state
         player       = gamePlayer state
         world'       = execState (ensureGenerated (entityPosition player)) world
         player'      = execState (moveEntity world') player
         camera       = gameCamera state
+        mouseCoords  = mouseToCoords (playerAimPos ctrl) camera
     put $ state
-        { gameController = c
-        , gamePlayer = acceleratePlayer c player'
+        { gameController = ctrl
+        , gamePlayer = acceleratePlayer ctrl player'
         , gameCamera = moveCamera camera player
-        , gameWorld  = world'
-        , isExit = wasWindowClosed events' || playerPauseActive c
+        , gameWorld  = removeBlock world' ((`div` blockSize) <$> mouseCoords)
+        , isExit = wasWindowClosed events' || playerPauseActive ctrl
         }
     return $ \s -> do
-        let V2 x y  = entityPosition player
+        let V2 x y  = (`div` blockSize) <$> entityPosition player'
             chunkId = coordsToChunkId $ V2 x y
             speed   = (physicsSpeed . entityPhysics) player
         putStrLn $ "x: " ++ show x ++ 
                    " y: " ++ show y ++ 
                    " chunk: " ++ show chunkId ++
                    " speed: " ++ show speed
+        putStrLn . show $ playerAimPos ctrl
         putStrLn . show $ entityHitbox player
         putStrLn . show $ entityGrounded player
         return s
-
-moveCamera :: Camera -> Player -> Camera
-moveCamera cam = flip cameraFromPlayer (cameraRes cam)
-
-normalizedCameraPos :: Camera -> V2 CInt
-normalizedCameraPos cam = cameraPos cam + ((`div` 2) <$> cameraRes cam)

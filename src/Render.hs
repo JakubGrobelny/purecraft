@@ -12,6 +12,7 @@ import World
 import Entity
 import Block
 import Hitbox
+import Camera
 
 -- this renderer will hold the loaded textures
 data GameRenderer = GameRenderer

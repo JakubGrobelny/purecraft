@@ -29,8 +29,7 @@ defaultKeyBindings = KeyBindings
     }
 
 data Controller = Controller
-    { playerAimPosX     :: Int32
-    , playerAimPosY     :: Int32
+    { playerAimPos      :: V2 Int32
     , playerMovesLeft   :: Bool
     , playerMovesRight  :: Bool
     , playerMovesUp     :: Bool
@@ -41,8 +40,7 @@ data Controller = Controller
 
 newController :: Controller
 newController = Controller
-    { playerAimPosX     = 0
-    , playerAimPosY     = 0
+    { playerAimPos      = V2 0 0
     , playerMovesLeft   = False
     , playerMovesRight  = False
     , playerMovesUp     = False
@@ -56,12 +54,14 @@ updateControls [] _ c = (c, [])
 updateControls (ev : events) keys c =
     case eventPayload ev of
         KeyboardEvent (KeyboardEventData _ m _ (Keysym _ k _)) -> 
-            updateControls events keys $ updateControls' k m c
+            updateControls events keys $ updateKeys k m c
+        MouseMotionEvent (MouseMotionEventData _ _ _ (P pos) _) ->
+            updateControls events keys $ c { playerAimPos = pos }
         _ -> let (c', events') = updateControls events keys c in 
             (c', ev : events')
     where
-        updateControls' :: Keycode -> InputMotion -> Controller -> Controller
-        updateControls' k m c
+        updateKeys :: Keycode -> InputMotion -> Controller -> Controller
+        updateKeys k m c
             | k == bindingUp    keys = c { playerMovesUp     = m == Pressed }
             | k == bindingLeft  keys = c { playerMovesLeft   = m == Pressed }
             | k == bindingRight keys = c { playerMovesRight  = m == Pressed }

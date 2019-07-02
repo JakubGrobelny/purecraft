@@ -13,13 +13,13 @@ gravity :: Double
 gravity = 1.0
 
 airDrag :: Double
-airDrag = 0.037
+airDrag = 0.045
 
 airDragV :: V2 Double
-airDragV = V2 airDrag airDrag
+airDragV = V2 (2 * airDrag) airDrag
 
 groundDrag :: Double
-groundDrag = 0.28
+groundDrag = 0.22
 
 groundDragV :: V2 Double
 groundDragV = V2 groundDrag 0.0

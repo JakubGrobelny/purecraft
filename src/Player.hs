@@ -27,7 +27,7 @@ verticalAcceleration :: Double
 verticalAcceleration = 0.95
 
 airborneVerticalHandicap :: Double
-airborneVerticalHandicap = 0.2
+airborneVerticalHandicap = 0.5
 
 jumpAcceleration :: Double
 jumpAcceleration = -7.0

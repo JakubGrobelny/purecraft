@@ -57,12 +57,26 @@ data World = World
     { worldSeed   :: Seed
     , worldChunks :: Map.Map CInt Chunk
     }
-
+    
 newWorld :: Seed -> World
 newWorld seed = World
     { worldSeed   = seed
     , worldChunks = Map.empty
     }
+    
+removeBlock :: World -> V2 CInt -> World
+removeBlock world coords = case lookupChunk world chunkId of
+    Nothing -> world
+    Just chunk -> let newBlocks = Map.insert coords' Air (chunkBlocks chunk)
+                      chunk'    = chunk 
+                                { chunkBlocks  = newBlocks
+                                , chunkAltered = True 
+                                }
+                      chunks    = worldChunks world
+        in world { worldChunks = Map.insert chunkId chunk' chunks }
+    where
+        chunkId = v2x coords `div` chunkWidth
+        coords' = (v2x coords - chunkId * chunkWidth, v2y coords)
 
 entityToChunkId :: Entity -> CInt
 entityToChunkId = coordsToChunkId . entityPosition 
