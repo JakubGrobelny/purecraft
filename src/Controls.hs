@@ -28,6 +28,18 @@ defaultKeyBindings = KeyBindings
     , bindingRun   = KeycodeLShift
     }
 
+data ButtonState
+    = StateActive
+    | StatePressed
+    | StateInactive
+    deriving (Show, Eq, Ord)
+
+motionToButtonState :: InputMotion -> ButtonState
+motionToButtonState motion =
+    case motion of
+        Pressed  -> StatePressed
+        Released -> StateInactive
+
 data Controller = Controller
     { playerAimPos      :: V2 Int32
     , playerMovesLeft   :: Bool
@@ -36,6 +48,8 @@ data Controller = Controller
     , playerPauseActive :: Bool
     , playerCrouches    :: Bool 
     , playerSprints     :: Bool
+    , playerLMB         :: ButtonState
+    , playerRMB         :: ButtonState
     } deriving Show
 
 newController :: Controller
@@ -47,19 +61,38 @@ newController = Controller
     , playerPauseActive = False
     , playerCrouches    = False
     , playerSprints     = False
+    , playerLMB         = StateInactive
+    , playerRMB         = StateInactive
     }
 
 updateControls :: [Event] -> KeyBindings -> Controller -> (Controller, [Event])
 updateControls [] _ c = (c, [])
-updateControls (ev : events) keys c =
+updateControls (ev : events) keys ctrl =
     case eventPayload ev of
         KeyboardEvent (KeyboardEventData _ m _ (Keysym _ k _)) -> 
             updateControls events keys $ updateKeys k m c
         MouseMotionEvent (MouseMotionEventData _ _ _ (P pos) _) ->
             updateControls events keys $ c { playerAimPos = pos }
+        MouseButtonEvent mbEvent -> let button = mouseButtonEventButton mbEvent
+                                        action = mouseButtonEventMotion mbEvent
+            in updateControls events keys $ updateButtons button action c
         _ -> let (c', events') = updateControls events keys c in 
             (c', ev : events')
     where
+        c = preprocessController ctrl
+        preprocessController :: Controller -> Controller
+        preprocessController ctrl = ctrl
+            { playerLMB = if lmb == StatePressed then StateActive else lmb
+            , playerRMB = if rmb == StatePressed then StateActive else rmb
+            }
+            where
+                lmb = playerLMB ctrl
+                rmb = playerRMB ctrl
+        updateButtons :: MouseButton -> InputMotion -> Controller -> Controller
+        updateButtons button motion ctrl =
+            case button of
+                ButtonLeft  -> ctrl { playerLMB = motionToButtonState motion }
+                ButtonRight -> ctrl { playerRMB = motionToButtonState motion }
         updateKeys :: Keycode -> InputMotion -> Controller -> Controller
         updateKeys k m c
             | k == bindingUp    keys = c { playerMovesUp     = m == Pressed }

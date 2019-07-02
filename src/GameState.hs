@@ -62,7 +62,10 @@ updateState events = do
         { gameController = ctrl
         , gamePlayer = acceleratePlayer ctrl player'
         , gameCamera = moveCamera camera player
-        , gameWorld  = removeBlock world' ((`div` blockSize) <$> mouseCoords)
+        , gameWorld  = if playerLMB ctrl == StatePressed 
+                       || playerLMB ctrl == StateActive
+            then removeBlock world' ((`div` blockSize) <$> mouseCoords)
+            else world'
         , isExit = wasWindowClosed events' || playerPauseActive ctrl
         }
     return $ \s -> do
@@ -77,3 +80,4 @@ updateState events = do
         putStrLn . show $ entityHitbox player
         putStrLn . show $ entityGrounded player
         return s
+        
