@@ -24,7 +24,7 @@ moveEntity world = do
         blocksHB = HB $ map blockBoundingBox blocks
         entityHB = entityHitbox entity
         pos      = entityPosition entity
-        newSpeed = bisectMovement (v2Zero) speed entityHB blocksHB
+        newSpeed = bisectMovement (v2Zero) speed entityHB blocksHB 10
     changeEntityPositionBy $ round <$> newSpeed
     tryMoveOneDirection YAxis speed blocksHB
     tryMoveOneDirection XAxis speed blocksHB
@@ -41,17 +41,21 @@ changeEntityPositionBy amount = do
         , entityHitbox = moveHB hb amount
         }
 
-bisectMovement :: V2 Double -> V2 Double -> Hitbox -> Hitbox -> V2 Double
-bisectMovement min max entityHB worldHB =
-    if approxEq min max || 
-      (not $ hitboxesCollide (moveHB entityHB $ round <$> max) worldHB)
-        then max
-        else let between = (/ 2.0) <$> (min + max)
-            in if hitboxesCollide (moveHB entityHB $ round <$> between) worldHB
-                then bisectMovement min between entityHB worldHB
-                else if isZero between || isBest between entityHB worldHB
-                    then between
-                    else bisectMovement between max entityHB worldHB
+bisectMovement :: V2 Double -> V2 Double -> Hitbox -> Hitbox -> Int -> V2 Double
+bisectMovement min max entityHB worldHB numOfSteps =
+    if approxEq min max || numOfSteps == 0
+        then min
+        else if not $ hitboxesCollide (moveHB entityHB $ round <$> max) worldHB
+            then max
+            else let between = (/ 2.0) <$> (min + max)
+                in if hitboxesCollide 
+                        (moveHB entityHB $ round <$> between) worldHB
+                    then bisectMovement 
+                            min between entityHB worldHB (numOfSteps - 1)
+                    else if isZero between || isBest between entityHB worldHB
+                        then between
+                        else bisectMovement 
+                                between max entityHB worldHB (numOfSteps - 1)
     where
         approxEq :: V2 Double -> V2 Double -> Bool
         approxEq = (==) `on` (round <$>)
