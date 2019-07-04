@@ -33,9 +33,8 @@ v2y :: V2 a -> a
 v2y (V2 _ y) = y
 
 v2Axis :: Axis -> V2 a -> a
-v2Axis axis = case axis of
-    XAxis -> v2x
-    YAxis -> v2y
+v2Axis XAxis = v2x
+v2Axis YAxis = v2y
 
 v2Unpack :: V2 a -> (a, a)
 v2Unpack (V2 x y) = (x, y)

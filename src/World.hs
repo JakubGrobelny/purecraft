@@ -29,15 +29,18 @@ queryBlocks world coords which = filter which . catMaybes $
     where
         splitCoords :: [(CInt, CInt)] -> [(CInt, [(CInt, CInt)])]
         splitCoords = map addId . groupBy ((==) `on` blockCoordsToChunkId)
-            where
-                addId :: [(CInt, CInt)] -> (CInt, [(CInt, CInt)])
-                addId cs = ((blockCoordsToChunkId . head) cs, cs)
+
+        addId :: [(CInt, CInt)] -> (CInt, [(CInt, CInt)])
+        addId cs = ((blockCoordsToChunkId . head) cs, cs)
+
         fix :: CInt -> (CInt, CInt) -> (CInt, CInt)
         fix id (x, y) = (x - id * chunkWidth, y)
+
         getBlocks :: CInt -> [(CInt, CInt)] -> [Maybe Block]
         getBlocks id coords = case lookupChunk world id of
             Nothing -> []
             Just chunk -> map (fixBlock id . lookupBlock chunk . fix id) coords
+
         fixBlock :: CInt -> Maybe Block -> Maybe Block
         fixBlock id block = case block of
             Nothing -> Nothing
@@ -126,14 +129,10 @@ lookupChunk w = flip Map.lookup $ worldChunks w
 generateChunk :: Seed -> CInt -> Chunk
 generateChunk seed id = Chunk
     { chunkBlocks = Map.fromList
-        [((x,y), if isGround seed id x y then Stone else Air) | 
+        [((x,y), Stone) | 
             x <- [0..chunkWidth-1], 
-            y <- [0..chunkHeight-1]]
-    , chunkBackground = Map.fromList 
-        [((x, y), AirBG) | 
-            x <- [0..chunkWidth-1],
-            y <- [0..chunkHeight-1]
-        ]
+            y <- filter (isGround seed id x) [0..chunkHeight-1]]
+    , chunkBackground = Map.empty
     , chunkAltered = False
     }
     where

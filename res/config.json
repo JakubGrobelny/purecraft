@@ -4,7 +4,7 @@
     "captureMouse": false,
     "keyBindings": {
         "bindingUp": {
-            "unwrapKeycode": 119
+            "unwrapKeycode": 32
         },
         "bindingDown": {
             "unwrapKeycode": 115

@@ -139,11 +139,13 @@ getSurroundings world entity =
             hbExtremePoint hb
                 (if v2x speed > 0.0 then (<) else (>))
                 (if v2y speed > 0.0 then (<) else (>)))
+        
         endingPos :: V2 Double -> Hitbox -> V2 CInt
         endingPos speed hb = (`div` blockSize) <$> (v2 $
             hbExtremePoint (moveHB hb $ towardsInf <$> speed)
                 (if v2x speed > 0.0 then (>) else (<))
                 (if v2y speed > 0.0 then (>) else (<)))
+        
         positions :: CInt -> CInt -> CInt -> CInt -> [(CInt, CInt)]
         positions fromX fromY toX toY = [(x, y) | 
             x <- [fromX - 1 .. toX + 1],

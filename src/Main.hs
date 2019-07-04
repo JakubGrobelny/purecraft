@@ -28,9 +28,12 @@ main = do
             renderer <- createGameRenderer window
             seed     <- randomIO
             let state = freshState seed cfg
-            gameLoop renderer state
-            destroyWindow window
-            quit
+            case renderer of
+                Nothing -> putStrLn "Failed to initialize the renderer!"
+                Just renderer -> do
+                    gameLoop renderer state
+                    destroyWindow window
+                    quit
 
 customWindow :: Configuration -> WindowConfig
 customWindow cfg = defaultWindow 

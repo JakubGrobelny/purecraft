@@ -35,10 +35,8 @@ data ButtonState
     deriving (Show, Eq, Ord)
 
 motionToButtonState :: InputMotion -> ButtonState
-motionToButtonState motion =
-    case motion of
-        Pressed  -> StatePressed
-        Released -> StateInactive
+motionToButtonState Pressed  = StatePressed
+motionToButtonState Released = StateInactive
 
 data Controller = Controller
     { playerAimPos      :: V2 Int32
@@ -80,6 +78,7 @@ updateControls (ev : events) keys ctrl =
             (c', ev : events')
     where
         c = preprocessController ctrl
+        
         preprocessController :: Controller -> Controller
         preprocessController ctrl = ctrl
             { playerLMB = if lmb == StatePressed then StateActive else lmb
@@ -88,11 +87,13 @@ updateControls (ev : events) keys ctrl =
             where
                 lmb = playerLMB ctrl
                 rmb = playerRMB ctrl
+        
         updateButtons :: MouseButton -> InputMotion -> Controller -> Controller
         updateButtons button motion ctrl =
             case button of
                 ButtonLeft  -> ctrl { playerLMB = motionToButtonState motion }
                 ButtonRight -> ctrl { playerRMB = motionToButtonState motion }
+        
         updateKeys :: Keycode -> InputMotion -> Controller -> Controller
         updateKeys k m c
             | k == bindingUp    keys = c { playerMovesUp     = m == Pressed }

@@ -29,7 +29,7 @@ data GameState = GameState
     , gameWorld      :: World
     }
 
-freshState :: Seed -> Configuration ->  GameState
+freshState :: Seed -> Configuration -> GameState
 freshState seed cfg = GameState 
     { isExit         = False
     , randoms        = R.randoms (R.mkStdGen seed)

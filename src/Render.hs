@@ -19,10 +19,11 @@ data GameRenderer = GameRenderer
     { sdlRenderer :: Renderer
     }
 
-createGameRenderer :: Window -> IO GameRenderer
+createGameRenderer :: Window -> IO (Maybe GameRenderer)
 createGameRenderer window = do
     renderer <- createRenderer window (-1) defaultRenderer
-    return $ GameRenderer renderer
+    rendererDrawBlendMode renderer $= BlendAlphaBlend
+    return . Just . GameRenderer $ renderer
 
 drawPlayer :: GameRenderer -> Camera -> Player -> IO ()
 drawPlayer r cam p = do
@@ -30,7 +31,8 @@ drawPlayer r cam p = do
         camPos   = cameraPos cam
         pPos     = entityPosition p
     rendererDrawColor renderer $= V4 0 63 127 255
-    fillRect renderer $ Just $ Rectangle (P $ pPos - camPos) (V2 32 80)
+    fillRect renderer $ 
+        Just $ Rectangle (P $ pPos - camPos) (V2 playerWidth playerHeight)
 
 drawBlock :: GameRenderer -> Camera -> Block -> IO ()
 drawBlock r cam b@(Block pos block) = do
@@ -49,8 +51,10 @@ drawWorld r cam world = mapM_ (drawBlock r cam) (fetchBlocks world)
     where
         fetchBlocks :: World -> [Block]
         fetchBlocks world = queryBlocks world coords isSolidBlock
+
         (V2 posX posY) = (`div` blockSize) <$> cameraPos cam
         (V2 resX resY) = (`div` blockSize) <$> cameraRes cam
+
         coords :: [(CInt, CInt)]
         coords = [(x, y) | 
             x <- [posX .. posX + resX],

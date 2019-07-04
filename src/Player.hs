@@ -1,4 +1,9 @@
-module Player (acceleratePlayer, newPlayer, Player(..)) where
+module Player ( acceleratePlayer
+              , newPlayer
+              , playerWidth
+              , playerHeight 
+              , Player(..)
+              ) where
 
 import Linear (V2(..))
 import Foreign.C.Types
@@ -13,12 +18,17 @@ import Utility
 import Block
 
 
+playerWidth :: CInt
+playerWidth = blockSize
+playerHeight :: CInt 
+playerHeight = blockSize * 2
+
 type Player = Entity
 
 newPlayer :: Player
 newPlayer = Entity 
     { entityPhysics  = Physics (V2 0 0) 0.75
-    , entityHitbox   = HB [BB 0 (100 * blockSize) 32 80]
+    , entityHitbox   = HB [BB 0 (100 * blockSize) playerWidth playerHeight]
     , entityPosition = V2 0 (100 * blockSize)
     , entityGrounded = False
     }
