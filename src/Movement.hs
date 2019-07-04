@@ -26,8 +26,8 @@ moveEntity world = do
         pos      = entityPosition entity
         newSpeed = bisectMovement (v2Zero) speed entityHB blocksHB 10
     changeEntityPositionBy $ round <$> newSpeed
-    tryMoveOneDirection YAxis speed blocksHB
-    tryMoveOneDirection XAxis speed blocksHB
+    tryMoveOneDirection YAxis (speed - newSpeed) blocksHB
+    tryMoveOneDirection XAxis (speed - newSpeed) blocksHB
     checkIfGrounded blocksHB
     clearEntitySpeed
 
